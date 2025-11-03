@@ -6,6 +6,7 @@ import axios from "axios"
 import { url } from "../Address/BaseUrl"
 import { Message } from "./Message"
 import { getLocalStoreTokenDts } from "./getLocalforageTokenDts"
+import CryptoJS from "crypto-js"
 
 const PasswordComp = ({ mode }) => {
 	const navigate = useNavigate()
@@ -33,10 +34,16 @@ const PasswordComp = ({ mode }) => {
 		};
 
 	const handlePasswordUpdate = async () => {
+
+		const secretKey = "MySuperSecretKey123!"
+
+		const encryptedOldPwd = CryptoJS.AES.encrypt(oldPassword, secretKey).toString()
+		const encryptedNewPwd = CryptoJS.AES.encrypt(newPassword, secretKey).toString()
+
 		const creds = {
 			emp_id: userDetails?.emp_id,
-			old_pwd: oldPassword,
-			new_pwd: newPassword,
+			old_pwd: encryptedOldPwd,
+			new_pwd: encryptedNewPwd,
 			modified_by: userDetails?.emp_id,
 			branch_code: userDetails?.brn_code,
             in_out_flag: "P",
