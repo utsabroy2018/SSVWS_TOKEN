@@ -323,6 +323,7 @@ localStorage.clear()
 								<StepperPanel header="Occupation Details">
 									<div className="flex flex-column h-12rem">
 										<div className="border-2 p-5 border-dashed rounded-3xl surface-border border-round surface-ground flex-auto font-medium">
+											
 											<OccupationDetailsForm
 												memberDetails={memberDetailsData}
 											/>
@@ -346,6 +347,7 @@ localStorage.clear()
 								<StepperPanel header="Household Details">
 									<div className="flex flex-column h-12rem">
 										<div className="border-2 p-5 border-dashed rounded-3xl surface-border border-round surface-ground flex-auto font-medium">
+											{/* <>{JSON.stringify(memberDetailsData, null, 2)}</> */}
 											<HouseholdDetailsForm memberDetails={memberDetailsData} />
 										</div>
 									</div>

@@ -54,21 +54,21 @@ function HouseholdDetailsForm({ memberDetails }) {
 		// remarks : 'ghfgh' 
 	}
 
-	// const [formValues, setValues] = useState({
-	// 	// h_no_of_rooms: "",
-	// 	h_parental_address: "",
-	// 	h_parental_phone: "",
-	// 	h_house_type: "",
-	// 	h_own_rent: "",
-	// 	h_total_land: "",
-	// 	h_politically_active: "",
-	// 	h_tv: "",
-	// 	h_bike: "",
-	// 	h_fridge: "",
-	// 	h_washing_machine: "",
-	// })
+	const [formValues, setValues] = useState({
+		// h_no_of_rooms: "",
+		h_parental_address: "",
+		h_parental_phone: "",
+		h_house_type: "",
+		h_own_rent: "",
+		h_total_land: "",
+		h_politically_active: "",
+		h_tv: "",
+		h_bike: "",
+		h_fridge: "",
+		h_washing_machine: "",
+	})
 
-		const [formValues, setValues] = useState(initialValues)
+		// const [formValues, setValues] = useState(initialValues)
 
 	// const [RemarkValues, setRemarkValues] = useState({
 	// 	remarks: "",
@@ -135,6 +135,7 @@ Authorization: `${tokenValue?.token}`, // example header
 },
 })
 			.then((res) => {
+				console.log(res?.data?.msg[0], 'ddddddddddddddddddddddd', res?.data?.msg[0]?.parental_addr);
 				
 				if(res?.data?.suc === 0){
 				// Message('error', res?.data?.msg)
@@ -179,24 +180,26 @@ Authorization: `${tokenValue?.token}`, // example header
 		setLoading(false)
 	}
 
-	// const formik = useFormik({
-	// 	initialValues: params?.id > 0 ? formValues : initialValues,
-	// 	onSubmit,
-	// 	validationSchema,
-	// 	validateOnChange: true,
-	// 	validateOnBlur: true,
-	// 	enableReinitialize: true,
-	// 	validateOnMount: true,
-	// })
-
 	const formik = useFormik({
-  initialValues: initialValues,
-  validationSchema: validationSchema,
-  onSubmit: (values) => {
-    console.log("Form Submitted:", values);
-    // your submit logic
-  },
-});
+		// initialValues: params?.id > 0 ? formValues : initialValues,
+		initialValues: formValues,
+		onSubmit,
+		validationSchema,
+		validateOnChange: true,
+		validateOnBlur: true,
+		enableReinitialize: true,
+		validateOnMount: true,
+	})
+
+	// const formik = useFormik({
+	// // initialValues: initialValues,
+	// initialValues: formValues,
+	// validationSchema: validationSchema,
+	// onSubmit: (values) => {
+	// console.log("Form Submitted:", values);
+	// // your submit logic
+	// },
+	// });
 
 	const editHouseholdDetails = async () => {
 		setLoading(true)
@@ -563,6 +566,7 @@ localStorage.clear()
 								) : null}
 							</div> */}
 							<div>
+								{/* <>{JSON.stringify(formik.values.h_parental_address, null, 2)}</> */}
 								<TDInputTemplateBr
 									placeholder="Type Parental Address..."
 									type="text"
