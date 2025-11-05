@@ -779,7 +779,7 @@ localStorage.clear()
 				<main className="px-4 pb-5 bg-slate-50 rounded-lg shadow-lg h-auto my-10 mx-32">
 					<div className="flex flex-row gap-3 mt-20  py-3 rounded-xl">
 						<div className="text-3xl text-slate-700 font-bold">
-							LOAN TRANSACTIONS
+							LOAN TRANSACTIONS 
 						</div>
 					</div>
 

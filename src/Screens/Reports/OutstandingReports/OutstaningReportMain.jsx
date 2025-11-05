@@ -977,9 +977,9 @@ localStorage.clear()
 			setSelectedOptions(dropdownOptions)
 		} else {
 			// setSelectedOptions(selected)
-			if (selected && selected.length > 4) {
-			return
-			}
+			// if (selected && selected.length > 4) {
+			// return
+			// }
 			setSelectedOptions(selected)
 		}
 	}

@@ -392,8 +392,11 @@ localStorage.clear()
 		// getTnxTypes()
 		// getTnxModes()
 	}, [])
+	
 	const handleDisbursementChange = async (index, event) => {
 		// alert()
+
+		
 		console.log(membersForDisb)
 		let dt = [...membersForDisb]
 		dt[index][event.target.name] = +event.target.value;
@@ -424,6 +427,17 @@ localStorage.clear()
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
+		// if (event.target.value < 1) {
+		// return
+		// }
+
+		// console.log(event.target.value, 'gggggggggggggggg', creds);
+		
+
+
+		// return 
+		setAppliedDisbursLoan(true)
+
 		axios.post(`${url}/admin/verify_tot_dib_amt`, creds, {
 headers: {
 Authorization: `${tokenValue?.token}`, // example header
@@ -431,6 +445,7 @@ Authorization: `${tokenValue?.token}`, // example header
 },
 }).then((res) => {
 
+	// console.log(event.target.value, 'gggggggggggggggg', res?.data?.suc);
 	
 if(res?.data?.suc === 0){
 // Message('error', res?.data?.msg)
@@ -444,9 +459,11 @@ localStorage.clear()
 					setCheckTot(res?.data?.suc)
 					Message("error", res?.data?.msg)
 					setAppliedDisbursLoan(false)
-				} else {
-					setAppliedDisbursLoan(true)
-				}
+				} 
+				
+				// else {
+				// 	setAppliedDisbursLoan(true)
+				// }
 			})
 		}
 
@@ -2545,7 +2562,9 @@ localStorage.clear()
 											// disabled
 										/>
 									</div>
+
 									{/* {JSON.stringify(AppliedDisbursLoan, 2)} */}
+									
 								</div>
 							))}
 							<div className="flex justify-end">

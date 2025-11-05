@@ -8,6 +8,7 @@ import { Message } from "./Message"
 import { getLocalStoreTokenDts } from "./getLocalforageTokenDts"
 import CryptoJS from "crypto-js"
 
+
 const PasswordComp = ({ mode }) => {
 	const navigate = useNavigate()
 	const userDetails = JSON.parse(localStorage.getItem("user_details")) || ""
@@ -16,6 +17,12 @@ const PasswordComp = ({ mode }) => {
 	const [newPassword, setNewPassword] = useState(() => "")
 	const [confirmPassword, setConfirmPassword] = useState(() => "")
 	const [machineIP, setMachineIP] = useState("")
+
+	const SECRET_KEY = 'S!YSN@ESR#GAI$CSS%OYF^TVE&KAS&OWL*UNT(ISO)NTS_PSR+IIT=ESL/IKM*IST!EAD@'
+
+	const encryptText = (text) => {
+	return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
+	};
 
 
 		useEffect(() => {
@@ -35,10 +42,13 @@ const PasswordComp = ({ mode }) => {
 
 	const handlePasswordUpdate = async () => {
 
-		const secretKey = "MySuperSecretKey123!"
+		// const secretKey = "MySuperSecretKey123!"
 
-		const encryptedOldPwd = CryptoJS.AES.encrypt(oldPassword, secretKey).toString()
-		const encryptedNewPwd = CryptoJS.AES.encrypt(newPassword, secretKey).toString()
+		// const encryptedOldPwd = CryptoJS.AES.encrypt(oldPassword, secretKey).toString()
+		// const encryptedNewPwd = CryptoJS.AES.encrypt(newPassword, secretKey).toString()
+
+		const encryptedOldPwd = encryptText(oldPassword);
+		const encryptedNewPwd = encryptText(newPassword);
 
 		const creds = {
 			emp_id: userDetails?.emp_id,
