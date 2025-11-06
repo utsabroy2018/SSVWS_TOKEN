@@ -162,9 +162,9 @@ function HomeScreenMis() {
 				branch_code: userDetails?.brn_code,
 				approval_status: loanType,
 				co_id: co_Id,
-				from_dt:(loanType == 'A' && date.length > 0) ? date[0]?.format('YYYY-MM-DD') : '',
-				to_dt:(loanType == 'A' && date.length > 0) ? date[1]?.format('YYYY-MM-DD') : '',
-
+				// from_dt:(loanType == 'A' && date.length > 0) ? date[0]?.format('YYYY-MM-DD') : '',
+				// to_dt:(loanType == 'A' && date.length > 0) ? date[1]?.format('YYYY-MM-DD') : '',
+				// Above close for Back DEV Advice
 			}, {
 headers: {
 Authorization: `${tokenValue?.token}`, // example header
@@ -172,7 +172,7 @@ Authorization: `${tokenValue?.token}`, // example header
 },
 })
 			.then((res) => {
-				console.log(res?.data, 'hhhhhhhhhhhh');
+				console.log(res?.data, 'hhhhhhhhhhhh', date[0]?.format('YYYY-MM-DD'), 'hhhhhhhhhhhhhh', date[1]?.format('YYYY-MM-DD'));
 				
 				if(res?.data?.suc === 0){
 				// Message('error', res?.data?.msg)

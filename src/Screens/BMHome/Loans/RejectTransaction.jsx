@@ -297,6 +297,8 @@ localStorage.clear()
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
+		
+		// return
 
 		try {
 			const res = await axios.post(`${url}/check_date_id_before_payment`, creds, {

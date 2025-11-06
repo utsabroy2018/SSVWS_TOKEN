@@ -394,6 +394,8 @@ export default function Dashboard() {
 		}
 		)
 
+		// console.log(res?.data?.data, 'xxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
 		if(res?.data?.suc === 0){
 
 		navigate(routePaths.LANDING)
@@ -782,6 +784,7 @@ localStorage.clear()
 
 	const fetchUserLoggedInDetailsCO = async () => {
 		setLoading(true)
+		const tokenValue = await getLocalStoreTokenDts(navigate);
 		try {
 			const creds = {
 				branch_code: getBranchCodes()[0],
@@ -789,10 +792,29 @@ localStorage.clear()
 			}
 			const res = await axios.post(
 				`${url}/admin/co_dashboard_user_logged_in_details`,
-				creds
-			)
+				creds,
+				{
+				headers: {
+				Authorization: `${tokenValue?.token}`, // example header
+				"Content-Type": "application/json", // optional
+				},
+				}
+				)
+
+			// console.log(res?.data, 'xxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+			if(res?.data?.suc === 0){
+
+			navigate(routePaths.LANDING)
+			localStorage.clear()
+			Message('error', res?.data?.msg)
+
+			} else {
 			setActiveUsersCount(res?.data?.data?.co_tot_user_active)
 			setActiveUsers(res?.data?.data?.co_active_user)
+			}
+			
+			
 		} catch {
 		} finally {
 			setLoading(false)
@@ -1721,6 +1743,8 @@ localStorage.clear()
 								backfaceVisibility: "hidden",
 							}}
 						>
+
+
 							{activeUsers.length !== 0 ? (
 								<div className="w-full max-h-[160px] overflow-auto">
 									<ul className="max-w-md space-y-1 text-slate-600 list-inside dark:text-slate-400">

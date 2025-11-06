@@ -98,14 +98,24 @@ const DynamicTailwindTable = ({
 		onRowSelectionChange(newSelection)
 	}
 
-	const handleCheckboxChange = (globalIndex, handleAllSelect = false) => {
-		const isAlready = selectedRowIndices.includes(globalIndex)
-		console.log(selectedRowIndices, globalIndex, '-------------------------------')
-		const newSelection = isAlready
-			? selectedRowIndices.filter((idx) => idx !== globalIndex)
-			: [...selectedRowIndices, globalIndex]
-		onRowSelectionChange(newSelection)
-		if(!handleAllSelect) handleSelectAllChange()
+	// This is for All checkbox selection
+	// const handleCheckboxChange = (globalIndex, handleAllSelect = false) => {
+	// 	const isAlready = selectedRowIndices.includes(globalIndex)
+	// 	console.log(selectedRowIndices, globalIndex, '-------------------------------')
+	// 	const newSelection = isAlready
+	// 		? selectedRowIndices.filter((idx) => idx !== globalIndex)
+	// 		: [...selectedRowIndices, globalIndex]
+	// 	onRowSelectionChange(newSelection)
+	// 	if(!handleAllSelect) handleSelectAllChange()
+	// }
+
+	// This is for single checkbox selection
+	const handleCheckboxChange = (globalIndex) => {
+	const isAlready = selectedRowIndices.includes(globalIndex)
+	const newSelection = isAlready
+	? selectedRowIndices.filter((idx) => idx !== globalIndex)
+	: [...selectedRowIndices, globalIndex]
+	onRowSelectionChange(newSelection)
 	}
 
 
