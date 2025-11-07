@@ -109,12 +109,20 @@ const DynamicTailwindTable = ({
 	// 	if(!handleAllSelect) handleSelectAllChange()
 	// }
 
+
 	// This is for single checkbox selection
+	// const handleCheckboxChange = (globalIndex) => {
+	// const isAlready = selectedRowIndices.includes(globalIndex)
+	// const newSelection = isAlready
+	// ? selectedRowIndices.filter((idx) => idx !== globalIndex)
+	// : [...selectedRowIndices, globalIndex]
+	// onRowSelectionChange(newSelection)
+	// }
+
+	// This lodgec User can Slect only one or All checkbox at a time
 	const handleCheckboxChange = (globalIndex) => {
 	const isAlready = selectedRowIndices.includes(globalIndex)
-	const newSelection = isAlready
-	? selectedRowIndices.filter((idx) => idx !== globalIndex)
-	: [...selectedRowIndices, globalIndex]
+	const newSelection = isAlready ? [] : [globalIndex] // only one selected
 	onRowSelectionChange(newSelection)
 	}
 
