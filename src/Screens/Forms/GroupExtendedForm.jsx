@@ -157,7 +157,7 @@ const containerStyle = {
 	const [visible, setVisible] = useState(() => false)
 	const [remarksForDelete, setRemarksForDelete] = useState(() => "")
 
-	var groupMemberRequirList = 4
+	var groupMemberRequirList = 5
 
 	// const [checkedValues, setCheckedValues] = useState([]);
 
@@ -1485,7 +1485,7 @@ localStorage.clear()
 												style={{ color: "red" }}
 												className="ant-tag ml-2 ant-tag-error ant-tag-borderless text-[12.6px] my-2"
 											>
-												(You can Select Maxmimum 4 Member)
+												(You can Select Maxmimum 5 Member)
 											</span>
 										</label>
 
@@ -1545,7 +1545,7 @@ localStorage.clear()
 												style={{ color: "red" }}
 												className="ant-tag ml-2 ant-tag-error ant-tag-borderless text-[12.6px] my-2"
 											>
-												(You can Select Maxmimum 4 Member)
+												(You can Select Maxmimum 5 Member)
 											</span>
 										</label>
 

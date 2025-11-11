@@ -392,21 +392,38 @@ localStorage.clear()
 	// 	setLoading(false)
 	// }
 
-	const callAPi = (item) =>{
-			console.log(item);
+	const callAPi = async (item) =>{
+			// console.log(item);
 			setLoading(true);
 			setLoanDtls([]);
+			const tokenValue = await getLocalStoreTokenDts(navigate);
 			try{
 					const payload = {
 						branch_code: userDetails?.brn_code,
 						loan_id: item?.loan_id,
 					}
-					axios.post(`${url}/admin/look_overdue_details`,payload)
+					axios.post(`${url}/admin/look_overdue_details`,payload, {
+					headers: {
+					Authorization: `${tokenValue?.token}`, // example header
+					"Content-Type": "application/json", // optional
+					},
+					})
 					.then((res) => {
+						// console.log(res?.data?.msg, 'testtttttttttt');
+						
+						if(res?.data?.suc === 0){
+						// Message('error', res?.data?.msg)
+						navigate(routePaths.LANDING)
+						localStorage.clear()
+						} else {
+
 						// console.log("API response:", res.data);
 						setOpenModal(true);
 						setLoanDtls(res?.data?.msg || []);
 						setLoading(false);
+
+						}
+
 					})
 					.catch((err) => {
 						setLoading(false);
