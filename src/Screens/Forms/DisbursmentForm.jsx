@@ -225,6 +225,17 @@ function DisbursmentForm() {
 		},
 	]
 
+	const Fortnight = [
+		{
+			code: "1",
+			name: "Week (1-3)",
+		},
+		{
+			code: "2",
+			name: "Week (2-4)",
+		}
+	]
+
 	const getBanks = async (input, dist_code, bank_code) => {
 		// console.log(input)
 		// if(input){
@@ -1869,9 +1880,18 @@ localStorage.clear()
 									/>
 								</div>
 								<div className="sm:col-span-4" style={{ position: "relative" }}>
+
+									{/* <>{JSON.stringify(Period_mode_valid, null, 2)}</> */}
+									
+									
+
+									{/* {Period_mode_valid == "Weekly" ||
+									Period_mode_valid == "Monthly" ? ( */}
+
 									{Period_mode_valid == "Weekly" ||
-									Period_mode_valid == "Monthly" ? (
-										""
+									Period_mode_valid == "Monthly" ||
+									Period_mode_valid == "Fortnight" ? (
+									""
 									) : (
 										<span
 											style={{ color: "red" }}
@@ -1899,13 +1919,16 @@ localStorage.clear()
 												code: "Weekly",
 												name: "Weekly",
 											},
+											{
+												code: "Fortnight",
+												name: "Fortnight",
+											},
 										]}
 										mode={2}
 										// disabled={
 										// 	!disbursementDetailsData.b_scheme || disburseOrNot
 										// }
 									/>
-									{/* {JSON.stringify(Period_mode_valid, 2)} */}
 								</div>
 
 								<div className="sm:col-span-4">
@@ -1967,7 +1990,8 @@ localStorage.clear()
 										// }
 									/>
 								</div>
-								{disbursementDetailsData.b_mode === "Monthly" ? (
+								
+								{/* {disbursementDetailsData.b_mode === "Monthly" ? (
 									<>
 										<div className="sm:col-span-4">
 											{!disbursementDetailsData?.b_dayOfRecovery && (
@@ -1978,6 +2002,7 @@ localStorage.clear()
 													Required!
 												</span>
 											)}
+
 											<TDInputTemplateBr
 												placeholder="Day of Recovery..."
 												type="number"
@@ -2032,7 +2057,107 @@ localStorage.clear()
 											/>
 										</div>
 									</>
-								)}
+								)} */}
+
+
+								{disbursementDetailsData.b_mode === "Monthly" ? (
+									<>
+										<div className="sm:col-span-4">
+											{!disbursementDetailsData?.b_dayOfRecovery && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+
+											<TDInputTemplateBr
+												placeholder="Day of Recovery..."
+												type="number"
+												label={`Day of Recovery ${
+													disbursementDetailsData.b_dayOfRecovery
+														? `(${getOrdinalSuffix(
+																disbursementDetailsData.b_dayOfRecovery
+														  )} of every month)`
+														: ""
+												}`}
+												name="b_dayOfRecovery"
+												formControlName={
+													disbursementDetailsData.b_dayOfRecovery
+												}
+												handleChange={handleChangeDisburseDetails}
+												mode={1}
+												// disabled={
+												// 	!disbursementDetailsData?.b_scheme || disburseOrNot
+												// }
+											/>
+											{(disbursementDetailsData.b_dayOfRecovery < 1 ||
+												disbursementDetailsData.b_dayOfRecovery > 31) && (
+												<VError title={`Day should be between 1 to 31`} />
+											)}
+										</div>
+									</>
+								) : disbursementDetailsData.b_mode === "Weekly" ? (
+									<>
+										<div className="sm:col-span-4">
+											{!disbursementDetailsData?.b_dayOfRecovery && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+											<TDInputTemplateBr
+												placeholder="Select Weekday"
+												type="text"
+												label="Day of Recovery"
+												name="b_dayOfRecovery"
+												formControlName={
+													disbursementDetailsData?.b_dayOfRecovery
+												}
+												handleChange={handleChangeDisburseDetails}
+												data={WEEKS}
+												mode={2}
+												// disabled={
+												// 	!disbursementDetailsData.b_scheme || disburseOrNot
+												// }
+											/>
+										</div>
+									</>
+								) : disbursementDetailsData.b_mode === "Fortnight" ? (
+									<>
+										<div className="sm:col-span-4">
+											{!disbursementDetailsData?.b_dayOfRecovery && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+											<TDInputTemplateBr
+												placeholder="Select Fortnight"
+												type="text"
+												label="Day of Recovery"
+												name="b_dayOfRecovery"
+												formControlName={
+													disbursementDetailsData?.b_dayOfRecovery
+												}
+												handleChange={handleChangeDisburseDetails}
+												data={Fortnight}
+												mode={2}
+												// disabled={
+												// 	!disbursementDetailsData.b_scheme || disburseOrNot
+												// }
+											/>
+										</div>
+									</>
+								) : null}
+
+
+
 								{/* <div>
                   <TDInputTemplateBr
                     placeholder="Bank charges..."
