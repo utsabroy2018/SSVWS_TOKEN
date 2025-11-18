@@ -1890,7 +1890,7 @@ localStorage.clear()
 
 									{Period_mode_valid == "Weekly" ||
 									Period_mode_valid == "Monthly" ||
-									Period_mode_valid == "Fortnight" ? (
+									Period_mode_valid == "Fortnighty" ? (
 									""
 									) : (
 										<span
@@ -1920,8 +1920,8 @@ localStorage.clear()
 												name: "Weekly",
 											},
 											{
-												code: "Fortnight",
-												name: "Fortnight",
+												code: "Fortnighty",
+												name: "Fortnighty",
 											},
 										]}
 										mode={2}

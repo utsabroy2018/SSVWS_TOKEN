@@ -510,6 +510,7 @@ const attendanceReportHeader = {
 	branch_id: "Branch ID",
 	emp_id: "Employee ID",
 	emp_name: "Employee Name",
+	phone_mobile: "Phone Number",
 	in_date_time: "In Date Time",
 	out_date_time: "Out Date Time",
 	in_addr: "Clock In Address",

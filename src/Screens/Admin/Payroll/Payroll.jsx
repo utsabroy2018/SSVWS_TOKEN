@@ -829,6 +829,8 @@ function Payroll({ branchCode = 100 }) {
 						</div>
 					)}
 
+			{/* <>{JSON.stringify(reportData, null, 2)}</> */}
+			
 					{reportData?.length > 0 && searchType !== "A" && (
 						<DynamicTailwindAccordion
 							indexing
