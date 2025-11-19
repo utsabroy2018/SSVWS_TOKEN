@@ -515,8 +515,10 @@ localStorage.clear()
 					b_period:
 						disbursementDetailsData.b_mode === "Monthly"
 							? res?.data?.msg[0]?.max_period
-							: disbursementDetailsData.b_mode === "Weekly"
+							: disbursementDetailsData.b_mode === "Weekly" 
 							? res?.data?.msg[0]?.max_period_week
+							: disbursementDetailsData.b_mode === "Fortnight" 
+							? res?.data?.msg[0]?.max_period
 							: "",
 					b_roi: res?.data?.msg[0]?.roi,
 					// b_mode: res?.data?.msg[0]?.payment_mode,
@@ -529,15 +531,25 @@ localStorage.clear()
 				setMaxDisburseAmountForAScheme(res?.data?.msg[0]?.max_amt);
 				if(disbursementDetailsData?.b_mode && disbursementDetailsData?.b_scheme && res?.data?.msg.length > 0){
 					console.log('asdadasdasdad')
-					const period = disbursementDetailsData?.b_mode == 'Monthly' ?  res?.data?.msg[0]?.min_period : res?.data?.msg[0]?.min_period_week;
-					const mode = disbursementDetailsData?.b_mode == 'Monthly' ? 12 : 7;
+					const period = disbursementDetailsData?.b_mode == 'Monthly' || 'Fortnight' ?  res?.data?.msg[0]?.min_period : res?.data?.msg[0]?.min_period_week;
+					const mode = disbursementDetailsData?.b_mode == 'Monthly' || 'Fortnight' ? 12 : 48;
 					const roi = res?.data?.msg[0]?.roi;
 					console.log(membersForDisb);
+
 					let dt = membersForDisb?.map(el =>{
 						 	const tot_interest = (((Number(el?.prn_disb_amt) * roi) / 100)* period) / Number(mode);
-							const total_emi = (Number(el?.prn_disb_amt) + tot_interest) / period;
-							el.emi = total_emi.toFixed(2);
-							return el;
+
+					var total_emi;
+					
+					if(disbursementDetailsData?.b_mode == 'Fortnight'){
+					total_emi = ((Number(el?.prn_disb_amt) + tot_interest) / period)/2;
+					} else { 
+					// const total_emi = (Number(el?.prn_disb_amt) + tot_interest) / period
+					total_emi = (Number(el?.prn_disb_amt) + tot_interest) / period
+					}
+
+					el.emi = total_emi.toFixed();
+					return el;
 					})	
 					setMembersForDisb(dt);
 					//  const { principal, mode, period, roi } = values;
@@ -1890,7 +1902,7 @@ localStorage.clear()
 
 									{Period_mode_valid == "Weekly" ||
 									Period_mode_valid == "Monthly" ||
-									Period_mode_valid == "Fortnighty" ? (
+									Period_mode_valid == "Fortnight" ? (
 									""
 									) : (
 										<span
@@ -1920,8 +1932,8 @@ localStorage.clear()
 												name: "Weekly",
 											},
 											{
-												code: "Fortnighty",
-												name: "Fortnighty",
+												code: "Fortnight",
+												name: "Fortnight",
 											},
 										]}
 										mode={2}
@@ -1940,10 +1952,13 @@ localStorage.clear()
 											Required!
 										</span>
 									)}
+									{/* {disbursementDetailsData.b_period} */}
+									{/* disbursementDetailsData.b_mode === "Fortnight" */}
 									<TDInputTemplateBr
 										placeholder="Period..."
 										type="text"
-										label="Period"
+										// label="Period"
+										label={`Period ${disbursementDetailsData.b_mode === "Fortnight" ? '('+disbursementDetailsData.b_period *2 + ' Fortnight)' : ""}`}
 										name="b_period"
 										formControlName={disbursementDetailsData.b_period}
 										handleChange={handleChangeDisburseDetails}
@@ -2140,7 +2155,7 @@ localStorage.clear()
 											<TDInputTemplateBr
 												placeholder="Select Fortnight"
 												type="text"
-												label="Day of Recovery"
+												label="Week of Recovery"
 												name="b_dayOfRecovery"
 												formControlName={
 													disbursementDetailsData?.b_dayOfRecovery
@@ -2606,7 +2621,7 @@ localStorage.clear()
 									4. Disbursement Details
 								</div>
 							</div>
-
+									{/* <>{JSON.stringify(membersForDisb, null, 2)}</> */}
 							{membersForDisb?.map((item, index) => (
 								<div className="grid gap-4 p-5 my-4 sm:grid-cols-4 bg-slate-200 rounded-md shadow-md sm:gap-6">
 									<div>

@@ -120,6 +120,18 @@ function ViewLoanForm({ groupDataArr }) {
 			name: "Saturday",
 		},
 	]
+
+	const Fortnight = [
+	{
+		code: "1",
+		name: "Week (1-3)",
+	},
+	{
+		code: "2",
+		name: "Week (2-4)",
+	}
+	]
+
 	const initialValues = {
 		g_co_name: "",
 		g_group_name: "",
@@ -817,6 +829,10 @@ localStorage.clear()
 											code: "Weekly",
 											name: "Weekly",
 										},
+										{
+											code: "Fortnight",
+											name: "Fortnight",
+										},
 									]}
 									mode={2}
 									disabled
@@ -860,7 +876,7 @@ localStorage.clear()
 											)}
 										</div>
 									</>
-								) : (
+								) : period_mode === "Weekly" ? (
 									<>
 										<div className="sm:col-span-6">
 											{!period_mode_val && (
@@ -886,7 +902,33 @@ localStorage.clear()
 											/>
 										</div>
 									</>
-								)}
+								) : period_mode === "Fortnight" ? (
+									<>
+									<div className="sm:col-span-6">
+											{!period_mode_val && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+											<TDInputTemplateBr
+												placeholder="Select Weekday"
+												type="text"
+												label="Week of Recovery"
+												name="b_dayOfRecovery"
+												formControlName={period_mode_val}
+												handleChange={(e) => setPeriodModeVal(e.target.value)}
+												data={Fortnight}
+												mode={2}
+												// disabled={
+												// 	!disbursementDetailsData.b_scheme || disburseOrNot
+												// }
+											/>
+										</div>
+									</>
+								) : null}
 							</div>
 							{userDetails?.id != 3 && <div className="sm:col-span-2 text-center">
 								<button
@@ -943,6 +985,7 @@ Authorization: `${tokenValue?.token}`, // example header
 						<div className="text-[#DA4167] text-lg font-bold">Loan Details</div>
 
 						<div>
+							{/* {JSON.stringify(groupData[0]?.disb_details[0]?.tot_emi, 2)} */}
 							<DynamicTailwindTable
 								data={groupData[0]?.disb_details?.map((el) => {
 									//  console.log(el.loan_cycle, ' Loan Cycle');
@@ -950,16 +993,24 @@ Authorization: `${tokenValue?.token}`, // example header
 									 
 									//  el.loan_cycle = loanCycle;
 									//  console.log(el);
+									let recoveryText = el.recovery_day;
+									if (+el.recovery_day === 1) {
+									recoveryText = "Week (1-3)";
+									} else if (+el.recovery_day === 2) {
+									recoveryText = "Week (2-4)";
+									}
+
 									 return {
 										...el,
-										loan_cycle:loanCycle
+										loan_cycle:loanCycle,
+										recovery_day: recoveryText,
 									 };
 								})}
 								pageSize={50}
-								columnTotal={[13, 15, 16]}
+								columnTotal={[14, 16, 18]}
 								headersMap={disbursementDetailsHeader}
-								dateTimeExceptionCols={[14]}
-								colRemove={[3, 5, 12, 17]}
+								dateTimeExceptionCols={[16]}
+								colRemove={[3, 5, 12]}
 							/>
 						</div>
 
