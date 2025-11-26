@@ -136,6 +136,7 @@ function DisbursmentForm() {
 		b_bankCharges: 0,
 		b_processingCharges: 0,
 		b_dayOfRecovery: "",
+		b_dayOfRecovery_Fortnight: "",
 		b_loan_cycle:""
 	})
 
@@ -224,6 +225,38 @@ function DisbursmentForm() {
 			name: "Saturday",
 		},
 	]
+
+	const WEEKS_FOURT_NIGHT = [
+		{
+			code: "1",
+			name: "Sunday",
+		},
+		{
+			code: "2",
+			name: "Monday",
+		},
+		{
+			code: "3",
+			name: "Tuesday",
+		},
+		{
+			code: "4",
+			name: "Wednesday",
+		},
+		{
+			code: "5",
+			name: "Thursday",
+		},
+		{
+			code: "6",
+			name: "Friday",
+		},
+		{
+			code: "7",
+			name: "Saturday",
+		},
+	]
+
 
 	const Fortnight = [
 		{
@@ -905,20 +938,21 @@ localStorage.clear()
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		// console.log(personalDetailsData?.b_acc2);
-		console.log(!personalDetailsData?.b_acc2 ,
-			!personalDetailsData?.b_bank_name  ,
-			!personalDetailsData?.b_bank_branch ,
-			!disbursementDetailsData.b_fund ,
-			!disbursementDetailsData.b_mode ,
-			!disbursementDetailsData.b_period ,
-			!disbursementDetailsData.b_dayOfRecovery ,
-			// !transactionDetailsData.b_bankName ,
-			!transactionDetailsData.b_remarks ,
-			!personalDetailsData.b_purpose ,
-			!transactionDetailsData.b_tnxDate ,
-			!disbursementDetailsData.b_period ,
-			!disbursementDetailsData.b_scheme ,
-			!disbursementDetailsData.b_loan_cycle, 'personalDetailsData');
+		// console.log(!personalDetailsData?.b_acc2 ,
+		// 	!personalDetailsData?.b_bank_name  ,
+		// 	!personalDetailsData?.b_bank_branch ,
+		// 	!disbursementDetailsData.b_fund ,
+		// 	!disbursementDetailsData.b_mode ,
+		// 	!disbursementDetailsData.b_period ,
+		// 	!disbursementDetailsData.b_dayOfRecovery ,
+		// 	!disbursementDetailsData?.b_dayOfRecovery_Fortnight ,
+		// 	// !transactionDetailsData.b_bankName ,
+		// 	!transactionDetailsData.b_remarks ,
+		// 	!personalDetailsData.b_purpose ,
+		// 	!transactionDetailsData.b_tnxDate ,
+		// 	!disbursementDetailsData.b_period ,
+		// 	!disbursementDetailsData.b_scheme ,
+		// 	!disbursementDetailsData.b_loan_cycle, 'personalDetailsData');
 		
 		if (
 			!personalDetailsData?.b_acc2 ||
@@ -928,6 +962,8 @@ localStorage.clear()
 			!disbursementDetailsData.b_mode ||
 			!disbursementDetailsData.b_period ||
 			!disbursementDetailsData.b_dayOfRecovery ||
+			// !disbursementDetailsData?.b_dayOfRecovery_Fortnight ||
+			(disbursementDetailsData.b_mode === "Fortnight" && !disbursementDetailsData?.b_dayOfRecovery_Fortnight) ||
 			// !transactionDetailsData.b_bankName ||
 			!transactionDetailsData.b_remarks ||
 			!personalDetailsData.b_purpose ||
@@ -954,20 +990,20 @@ localStorage.clear()
 				const tokenValue = await getLocalStoreTokenDts(navigate);
 
 				axios.post(`${url}/admin/fetch_unapprove_dtls_before_trns_dt`, payload, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-}).then((res) => {
-						// console.log(res);
-								setLoading(false);
+				headers: {
+				Authorization: `${tokenValue?.token}`, // example header
+				"Content-Type": "application/json", // optional
+				},
+				}).then((res) => {
+										// console.log(res);
+												setLoading(false);
 
-						
-if(res?.data?.suc === 0){
-// Message('error', res?.data?.msg)
-navigate(routePaths.LANDING)
-localStorage.clear()
-} else {
+										
+				if(res?.data?.suc === 0){
+				// Message('error', res?.data?.msg)
+				navigate(routePaths.LANDING)
+				localStorage.clear()
+				} else {
 							        const hasNonZero = res?.data?.msg.some(item =>Object.values(item).some(value => value != 0));
 									// console.log("hasNonZero", hasNonZero);
 									setHasBeforeUpnapproveTransDate(hasNonZero);
@@ -1067,6 +1103,10 @@ localStorage.clear()
 							old_prn_amt: "0",
 							od_intt_amt: "0",
 							recovery_date: disbursementDetailsData?.b_dayOfRecovery || "",
+							// week_no: disbursementDetailsData?.b_dayOfRecovery_Fortnight || "",
+							week_no: disbursementDetailsData?.b_mode === "Fortnight" ? disbursementDetailsData?.b_dayOfRecovery_Fortnight || ""
+    : 0,
+							// (disbursementDetailsData.b_mode === "Fortnight" && !disbursementDetailsData?.b_dayOfRecovery_Fortnight)
 							period_mode: disbursementDetailsData?.b_mode || "",
 							created_by: userDetails?.emp_id || "",
 							loan_code: params?.id || "",
@@ -1094,7 +1134,7 @@ localStorage.clear()
 							///////////////////////////////////////////////////////
 						}
 
-						console.log(creds, "finalcredssssssssssssss");
+						// console.log(creds, "finalcredssssssssssssss");
 						
 
 						// return;
@@ -1921,6 +1961,12 @@ localStorage.clear()
 										formControlName={disbursementDetailsData?.b_mode}
 										handleChange={(e) => {
 											handleChangeDisburseDetails(e);
+											// setDisbursementDetailsData({b_dayOfRecovery_Fortnight: ""})
+											setDisbursementDetailsData(prev => ({
+											...prev,
+											b_dayOfRecovery: "",
+											b_dayOfRecovery_Fortnight: ""
+											}));
 										}}
 										data={[
 											{
@@ -2075,6 +2121,10 @@ localStorage.clear()
 								)} */}
 
 
+									{/* {JSON.stringify(disbursementDetailsData?.b_dayOfRecovery, 2)} ||
+									{JSON.stringify(disbursementDetailsData?.b_dayOfRecovery_Fortnight, 2)}  */}
+
+
 								{disbursementDetailsData.b_mode === "Monthly" ? (
 									<>
 										<div className="sm:col-span-4">
@@ -2143,8 +2193,37 @@ localStorage.clear()
 									</>
 								) : disbursementDetailsData.b_mode === "Fortnight" ? (
 									<>
-										<div className="sm:col-span-4">
+										
+
+										<div className="sm:col-span-4" style={{position:'relative'}}>
 											{!disbursementDetailsData?.b_dayOfRecovery && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+											<TDInputTemplateBr
+												placeholder="Select Weekday"
+												type="text"
+												label="Day of Recovery"
+												name="b_dayOfRecovery"
+												// name="b_dayOfRecovery"
+												formControlName={
+													disbursementDetailsData?.b_dayOfRecovery
+												}
+												handleChange={handleChangeDisburseDetails}
+												data={WEEKS_FOURT_NIGHT}
+												mode={2}
+												// disabled={
+												// 	!disbursementDetailsData.b_scheme || disburseOrNot
+												// }
+											/>
+										</div>
+
+										<div className="sm:col-span-4" style={{position:'relative'}}>
+											{!disbursementDetailsData?.b_dayOfRecovery_Fortnight && (
 												<span
 													style={{ color: "red" }}
 													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
@@ -2156,9 +2235,9 @@ localStorage.clear()
 												placeholder="Select Fortnight"
 												type="text"
 												label="Week of Recovery"
-												name="b_dayOfRecovery"
+												name="b_dayOfRecovery_Fortnight"
 												formControlName={
-													disbursementDetailsData?.b_dayOfRecovery
+													disbursementDetailsData?.b_dayOfRecovery_Fortnight
 												}
 												handleChange={handleChangeDisburseDetails}
 												data={Fortnight}
@@ -2187,7 +2266,7 @@ localStorage.clear()
                     // }
                   />
                 </div> */}
-								<div className="sm:col-span-6">
+								<div className="sm:col-span-4">
 									<TDInputTemplateBr
 										placeholder="Processing charges..."
 										type="number"
@@ -2203,7 +2282,7 @@ localStorage.clear()
 										// }
 									/>
 								</div>
-								<div className="sm:col-span-6">
+								<div className="sm:col-span-4">
 									<TDInputTemplateBr
 										placeholder="Bank charges..."
 										type="number"
