@@ -99,7 +99,9 @@ const disbursementDetailsHeader = {
 	disb_dt: "Disburse Date",
 	disburse_amt: "Disburse Amt",
 	tot_emi: "Total EMI",
+	// week_no: "Recovery Day",
 	recovery_day: "Recovery Day",
+	week_no: "Week of Recovery",
 	curr_outstanding: "Current Outstanding",
 	loan_cycle:"Loan Cycle"
 }
@@ -226,6 +228,7 @@ const groupwiseDemandReportHeader = {
 	period: "Period",
 	period_mode: "Period Mode",
 	recovery_day: "Recovery Day",
+	week_no: "Week of Recovery",
 	instl_end_dt: "Demand End Date",
 	dmd_amt: "Demand Amount",
 	outstanding: "Outstanding",
@@ -244,6 +247,7 @@ const fundwiseDemandReportHeader = {
 	fund_name: "Fund Name",
 	period_mode: "Period Mode",
 	recovery_day: "Recovery Day",
+	week_no: "Week of Recovery",
 	dmd_amt: "Demand Amount",
 	curr_outstanding: "Current Outstanding",
 }
@@ -258,6 +262,7 @@ const cowiseDemandReportHeader = {
 	co_name: "CO Name",
 	period_mode: "Period Mode",
 	recovery_day: "Recovery Day",
+	week_no: "Week of Recovery",
 	dmd_amt: "Demand Amount",
 	curr_outstanding: "Current Outstanding",
 }
@@ -279,6 +284,7 @@ const memberwiseDemandReportHeader = {
 	period: "Period",
 	period_mode: "Period Mode",
 	recovery_day: "Recovery Day",
+	week_no: "Week of Recovery",
 	instl_end_dt: "Demand End Date",
 	tot_emi: "Total EMI",
 	demand_amt: "Demand Amount",

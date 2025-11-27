@@ -67,6 +67,7 @@ function ViewLoanForm({ groupDataArr }) {
 	const [visible, setVisible] = useState(() => false)
 	const [period_mode, setPeriodMode] = useState("")
 	const [period_mode_val, setPeriodModeVal] = useState(0)
+	const [weekOfRecovery, setWeekOfRecovery] = useState(0)
 
 	const containerRef = useRef(null)
 
@@ -91,6 +92,37 @@ function ViewLoanForm({ groupDataArr }) {
 		/* purpose,scheme name,interest rate,period,period mode,fund name,total applied amount,total disbursement amount,disbursement date,current outstanding */
 	}
 	const WEEKS = [
+		{
+			code: "1",
+			name: "Sunday",
+		},
+		{
+			code: "2",
+			name: "Monday",
+		},
+		{
+			code: "3",
+			name: "Tuesday",
+		},
+		{
+			code: "4",
+			name: "Wednesday",
+		},
+		{
+			code: "5",
+			name: "Thursday",
+		},
+		{
+			code: "6",
+			name: "Friday",
+		},
+		{
+			code: "7",
+			name: "Saturday",
+		},
+	]
+
+	const WEEKS_FOURT_NIGHT = [
 		{
 			code: "1",
 			name: "Sunday",
@@ -205,7 +237,7 @@ Authorization: `${tokenValue?.token}`, // example header
 navigate(routePaths.LANDING)
 localStorage.clear()
 } else {
-
+				
 				setValues({
 					g_co_name: res?.data?.msg[0]?.emp_name,
 					g_group_name: res?.data?.msg[0]?.group_name,
@@ -248,6 +280,7 @@ localStorage.clear()
 				setGroupData(res?.data?.msg)
 				setPeriodMode(res?.data?.msg[0].disb_details[0]?.period_mode)
 				setPeriodModeVal(res?.data?.msg[0].disb_details[0]?.recovery_day)
+				setWeekOfRecovery(res?.data?.msg[0].disb_details[0]?.week_no)
 				setBranch(
 					res?.data?.msg[0]?.disctrict + "," + res?.data?.msg[0]?.branch_code
 				)
@@ -447,6 +480,18 @@ localStorage.clear()
 				console.log("Error occurred while calling API:", err);
 			}
 	}
+
+
+	const getFortnightDayName = (code) => {
+	const day = WEEKS_FOURT_NIGHT.find((d) => d.code === String(code));
+	return day ? day.name : "";
+	};
+
+	const getWeekOfRecoveryName = (code) => {
+	const day = Fortnight.find((d) => d.code === String(code));
+	return day ? day.name : "--";
+	};
+	
 
 	return (
 		<>
@@ -841,9 +886,9 @@ localStorage.clear()
 									// }
 								/>
 							</div>
-							<div className="sm:col-span-1">
+							
 								{period_mode === "Monthly" ? (
-									<>
+									<div className="sm:col-span-1">
 										<div className="sm:col-span-6">
 											{!period_mode_val && (
 												<span
@@ -875,9 +920,9 @@ localStorage.clear()
 												<VError title={`Day should be between 1 to 31`} />
 											)}
 										</div>
-									</>
+									</div>
 								) : period_mode === "Weekly" ? (
-									<>
+									<div className="sm:col-span-1">
 										<div className="sm:col-span-6">
 											{!period_mode_val && (
 												<span
@@ -901,10 +946,12 @@ localStorage.clear()
 												// }
 											/>
 										</div>
-									</>
+									</div>
 								) : period_mode === "Fortnight" ? (
 									<>
-									<div className="sm:col-span-6">
+
+									<div className="sm:col-span-1">
+										<div className="sm:col-span-6">
 											{!period_mode_val && (
 												<span
 													style={{ color: "red" }}
@@ -916,10 +963,39 @@ localStorage.clear()
 											<TDInputTemplateBr
 												placeholder="Select Weekday"
 												type="text"
-												label="Week of Recovery"
+												label="Day of Recovery"
 												name="b_dayOfRecovery"
 												formControlName={period_mode_val}
 												handleChange={(e) => setPeriodModeVal(e.target.value)}
+												data={WEEKS_FOURT_NIGHT}
+												mode={2}
+												// disabled={
+												// 	!disbursementDetailsData.b_scheme || disburseOrNot
+												// }
+											/>
+										</div>
+										</div>
+
+									<div className="sm:col-span-1">
+									{/* <>{JSON.stringify(weekOfRecovery, null, 2)}</>  ///
+									<>{JSON.stringify(period_mode_val, null, 2)}</>  */}
+									<div className="sm:col-span-6">
+										
+											{!weekOfRecovery && (
+												<span
+													style={{ color: "red" }}
+													className="right-0 ant-tag ant-tag-error ant-tag-borderless text-[12.6px] my-0 css-dev-only-do-not-override-1tse2sn absolute"
+												>
+													Required!
+												</span>
+											)}
+											<TDInputTemplateBr
+												placeholder="Select Weekday"
+												type="text"
+												label="Week of Recovery"
+												name="b_dayOfRecovery_Fortnight"
+												formControlName={weekOfRecovery}
+												handleChange={(e) => setWeekOfRecovery(e.target.value)}
 												data={Fortnight}
 												mode={2}
 												// disabled={
@@ -927,9 +1003,15 @@ localStorage.clear()
 												// }
 											/>
 										</div>
+
+										</div>
+
+										
 									</>
+										
+									
 								) : null}
-							</div>
+							
 							{userDetails?.id != 3 && <div className="sm:col-span-2 text-center">
 								<button
 									className="py-2.5 px-5 bg-teal-500 text-slate-50 rounded-full hover:bg-green-500 active:ring-2 active:ring-slate-500"
@@ -938,6 +1020,7 @@ localStorage.clear()
 									onClick={async () => {
 										const creds = {
 											recovery_day: period_mode_val,
+											week_no: weekOfRecovery,
 											modified_by: userDetails?.emp_id,
 											recov_day_dtls: groupData[0]?.disb_details?.map((e) => {
 												return { loan_id: e.loan_id }
@@ -985,29 +1068,35 @@ Authorization: `${tokenValue?.token}`, // example header
 						<div className="text-[#DA4167] text-lg font-bold">Loan Details</div>
 
 						<div>
-							{/* {JSON.stringify(groupData[0]?.disb_details[0]?.tot_emi, 2)} */}
+							{/* {JSON.stringify(groupData, 2)} */}
 							<DynamicTailwindTable
 								data={groupData[0]?.disb_details?.map((el) => {
 									//  console.log(el.loan_cycle, ' Loan Cycle');
 									 const loanCycle = 'Loan Cycle - '+ el.loan_cycle; 
 									 
 									//  el.loan_cycle = loanCycle;
-									//  console.log(el);
-									let recoveryText = el.recovery_day;
-									if (+el.recovery_day === 1) {
-									recoveryText = "Week (1-3)";
-									} else if (+el.recovery_day === 2) {
-									recoveryText = "Week (2-4)";
-									}
+									//  console.log(el.week_no, ' Week No');
+									// let recoveryWeekNoText = el.week_no;
+									// if (+el.week_no === 1) {
+									// recoveryWeekNoText = "Week (1-3)";
+									// } else if (+el.week_no === 2) {
+									// recoveryWeekNoText = "Week (2-4)";
+									// }
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+
+									const recoveryDayText = getFortnightDayName(el.recovery_day);
+									
 
 									 return {
 										...el,
 										loan_cycle:loanCycle,
-										recovery_day: recoveryText,
+										// recovery_day: recoveryWeekNoText,
+										week_no: recoveryWeekNoText,
+										recovery_day: recoveryDayText,
 									 };
 								})}
 								pageSize={50}
-								columnTotal={[14, 16, 18]}
+								columnTotal={[15, 17, 18]}
 								headersMap={disbursementDetailsHeader}
 								dateTimeExceptionCols={[16]}
 								colRemove={[3, 5, 12]}

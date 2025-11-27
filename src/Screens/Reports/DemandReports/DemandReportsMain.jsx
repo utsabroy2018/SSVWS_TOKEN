@@ -68,6 +68,10 @@ const options2 = [
 		label: "Weekly",
 		value: "Weekly",
 	},
+	{
+		label: "Fortnight",
+		value: "Fortnight",
+	},
 ]
 
 function DemandReportsMain() {
@@ -97,6 +101,8 @@ function DemandReportsMain() {
 	// const [tot_sum, setTotSum] = useState(0)
 	// const [search, setSearch] = useState("")
 	const [fetchedReportDate, setFetchedReportDate] = useState(() => "")
+	const [weekOfRecovery, setWeekOfRecovery] = useState(0)
+
 	const navigate = useNavigate()
 	
 
@@ -121,7 +127,8 @@ function DemandReportsMain() {
 		toDay !== "" &&
 		+fromDay >= 1 &&
 		+toDay <= maxDay &&
-		+fromDay <= +toDay
+		+fromDay <= +toDay &&
+		(searchType2 !== "Fortnight" || weekOfRecovery !== "");
 
 	const showError = (fromTouched || toTouched) && !isValidRange
 
@@ -580,6 +587,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -592,6 +600,7 @@ localStorage.clear()
 			},
 			})
 			.then((res) => {
+				// console.log(res?.data, 'resresresres');
 				
 				if(res?.data?.suc === 0){
 				// Message('error', res?.data?.msg)
@@ -605,6 +614,7 @@ localStorage.clear()
 			})
 			.catch((err) => {
 				console.log("ERRRR>>>", err)
+				// setReportData([])
 			})
 		setLoading(false)
 	}
@@ -623,6 +633,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -668,6 +679,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -711,6 +723,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -889,6 +902,24 @@ localStorage.clear()
 		name: (2025 + i).toString(),
 	}))
 
+	const Fortnight = [
+	{
+		code: "1",
+		name: "Week (1-3)",
+	},
+	{
+		code: "2",
+		name: "Week (2-4)",
+	}
+	]
+
+
+	const getWeekOfRecoveryName = (code) => {
+	const day = Fortnight.find((d) => d.code === String(code));
+	return day ? day.name : "--";
+	};
+
+
 	return (
 		<div>
 			<Sidebar mode={2} />
@@ -901,7 +932,7 @@ localStorage.clear()
 				<main className="px-4 pb-5 bg-slate-50 rounded-lg shadow-lg h-auto my-10 mx-32">
 					<div className="flex flex-row gap-3 mt-20  py-3 rounded-xl">
 						<div className="text-3xl text-slate-700 font-bold">
-							DEMAND REPORT
+							DEMAND REPORT 
 						</div>
 					</div>
 
@@ -1306,11 +1337,35 @@ localStorage.clear()
 								<Radiobtn
 									data={options2}
 									val={searchType2}
-									onChangeVal={(e) => onChange2(e)}
+									onChangeVal={(e) => {
+										onChange2(e)
+										setWeekOfRecovery("")
+									}}
 								/>
 							</div>
 
-							<div className="grid grid-cols-3 gap-5 mt-5 items-end">
+							<div className="grid grid-cols-3 gap-5 mt-5 items-end" style={{alignItems:'start'}}>
+
+
+								{searchType2 === "Fortnight" && (
+								<div>
+								<TDInputTemplateBr
+								placeholder="Select Weekday"
+								type="text"
+								label="Week of Recovery"
+								name="b_dayOfRecovery_Fortnight"
+								formControlName={weekOfRecovery}
+								handleChange={(e) => setWeekOfRecovery(e.target.value)}
+								data={Fortnight}
+								mode={2}
+								// disabled={
+								// 	!disbursementDetailsData.b_scheme || disburseOrNot
+								// }
+								/>
+								</div>
+								)}
+								
+							
 								<div>
 									<TDInputTemplateBr
 										placeholder="From Day"
@@ -1353,6 +1408,10 @@ localStorage.clear()
 									)}
 								</div>
 
+								</div>
+
+<div className="grid grid-cols-3 gap-5 mt-5 items-end">
+	
 								<div>
 									<button
 										className={`inline-flex items-center px-4 py-2 mt-0 ml-0 sm:mt-0 text-sm font-small text-center text-white border hover:border-green-600 border-teal-500 bg-teal-500 transition ease-in-out hover:bg-green-600 duration-300 rounded-full  dark:focus:ring-primary-900`}
@@ -1379,10 +1438,22 @@ localStorage.clear()
 					}
 					{reportData.length > 0 && searchType === "G" && (
 						<>
+						{/* {JSON.stringify(reportData, 2)} */}
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
+
 								pageSize={50}
-								columnTotal={[12]}
+								columnTotal={[13]}
 								dateTimeExceptionCols={[0, 11, 12, 7, 12, 13]}
 								headersMap={groupwiseDemandReportHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1400,9 +1471,18 @@ localStorage.clear()
 					{reportData.length > 0 && searchType === "F" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[11]}
+								columnTotal={[12]}
 								dateTimeExceptionCols={[0]}
 								headersMap={fundwiseDemandReportHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1420,9 +1500,18 @@ localStorage.clear()
 					{reportData.length > 0 && searchType === "C" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[9]}
+								columnTotal={[10]}
 								dateTimeExceptionCols={[0]}
 								headersMap={cowiseDemandReportHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1440,9 +1529,18 @@ localStorage.clear()
 					{reportData.length > 0 && searchType === "M" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[18]}
+								columnTotal={[19]}
 								dateTimeExceptionCols={[0, 10, 16, 17]}
 								headersMap={memberwiseDemandReportHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1482,15 +1580,9 @@ localStorage.clear()
 							<Tooltip title="Export to Excel">
 								<button
 									onClick={() =>{
-										// exportToExcel(
-										// 	dataToExport,
-										// 	headersToExport,
-										// 	fileName,
-										// 	[0, 10, 11, 16]
-										// )
 										
 										const dt = md_columns.filter(el => selectedColumns.includes(el.index));
-										console.log(dt);
+										
 										let header_export = {};
 										Object.keys(headersToExport).forEach(key =>{
 											if(dt.filter(ele => ele.header == headersToExport[key]).length > 0){
@@ -1501,7 +1593,24 @@ localStorage.clear()
 											}
 										});
 										let data = [...dataToExport];
-										console.log(header_export);
+										// console.log(header_export);
+										// console.log(data, 'dtdtdtdtdt');
+
+										const Fortnight = [
+											{ code: "1", name: "Week (1-3)" },
+											{ code: "2", name: "Week (2-4)" }
+										];
+
+										const fortnightMap = Fortnight.reduce((acc, item) => {
+											acc[item.code] = item.name;
+											return acc;
+										}, {});
+
+										data = data.map(row => ({
+											...row,
+											week_no: fortnightMap[row.week_no] || row.week_no
+										}));
+
 										if('dmd_amt' in header_export){
 											const total_demand_amt = data.reduce((accumulator, currentValue) => {
 																		return Number(currentValue?.dmd_amt) + accumulator;
@@ -1516,9 +1625,7 @@ localStorage.clear()
 											fileName,
 											[0, 10, 11, 16]
 										)
-										// console.log(headersToExport);
-										// console.log(selectedColumns);
-										// console.log(md_columns);
+
 									}}
 									className="mt-5 justify-center items-center rounded-full text-green-900"
 								>
