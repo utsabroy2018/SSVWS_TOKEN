@@ -59,6 +59,18 @@ const options = [
 	},
 ]
 
+
+const Fortnight = [
+	{
+		code: "1",
+		name: "Week (1-3)",
+	},
+	{
+		code: "2",
+		name: "Week (2-4)",
+	}
+	]
+
 function OutstaningReportMain() {
 	const [selectedColumns, setSelectedColumns] = useState(null);
 	const [md_columns, setColumns] = useState([]);
@@ -1021,6 +1033,14 @@ localStorage.clear()
 				setColumns(columnToBeShown);
 				setSelectedColumns(columnToBeShown.map(el => el.index));
 	}
+
+
+	const getWeekOfRecoveryName = (code) => {
+	const day = Fortnight.find((d) => d.code === String(code));
+	return day ? day.name : "--";
+	};
+
+	
 	return (
 		<div>
 			<Sidebar mode={2} />
@@ -1319,9 +1339,18 @@ localStorage.clear()
 					{searchType === "M" && reportData.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[32, 35, 36, 37]}
+								columnTotal={[32, 37, 38, 39]}
 								dateTimeExceptionCols={[8, 29, 31]}
 								headersMap={memberwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1334,12 +1363,22 @@ localStorage.clear()
 						</>
 					)}
 
+
 					{searchType === "G" && reportData.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[9, 10, 11, 12]}
+								columnTotal={[11, 12, 13, 14]}
 								headersMap={groupwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
 										if(!selectedColumns.includes(el.index)){

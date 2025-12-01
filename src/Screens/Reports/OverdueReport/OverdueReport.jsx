@@ -79,7 +79,22 @@ const options3 = [
 		label: "Weekly",
 		value: "Weekly",
 	},
+	{
+		label: "Fortnight",
+		value: "Fortnight",
+	},
 ]
+
+	const Fortnight = [
+	{
+		code: "1",
+		name: "Week (1-3)",
+	},
+	{
+		code: "2",
+		name: "Week (2-4)",
+	}
+	]
 
 function OverdueReport() {
 	const [selectedColumns, setSelectedColumns] = useState(null);
@@ -117,6 +132,7 @@ function OverdueReport() {
 	const [toDay, setToDay] = useState(() => "")
 	const [fromTouched, setFromTouched] = useState(false)
 	const [toTouched, setToTouched] = useState(false)
+	const [weekOfRecovery, setWeekOfRecovery] = useState("")
 
 	const maxDay = searchType3 === "Monthly" ? 31 : 7
 
@@ -125,9 +141,12 @@ function OverdueReport() {
 		toDay !== "" &&
 		+fromDay >= 1 &&
 		+toDay <= maxDay &&
-		+fromDay <= +toDay
+		+fromDay <= +toDay &&
+		(searchType3 !== "Fortnight" || weekOfRecovery !== "");
 
-	const showError = (fromTouched || toTouched) && !isValidRange
+	const showError = (fromTouched || toTouched) && !isValidRange;
+
+	
 
 	const onChange = (e) => {
 		console.log("radio1 checked", e)
@@ -526,6 +545,7 @@ Authorization: `${tokenValue?.token}`, // example header
 			period_mode: searchType3,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -576,6 +596,7 @@ Authorization: `${tokenValue?.token}`, // example header
 			period_mode: searchType3,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 			fund_id: selectedFund === "F" ? selectedFunds : [selectedFund],
 		}
 
@@ -633,6 +654,7 @@ Authorization: `${tokenValue?.token}`, // example header
 						? allCos
 						: [selectedCO]
 					: coCodes,
+			week_no : weekOfRecovery,
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -683,6 +705,7 @@ Authorization: `${tokenValue?.token}`, // example header
 			period_mode: searchType3,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
@@ -713,6 +736,8 @@ Authorization: `${tokenValue?.token}`, // example header
 	}
 
 	const handleSubmitDaywise = () => {
+		
+
 		if (searchType2 === "G") {
 			handleFetchGroupwiseDayReport()
 		} else if (searchType2 === "F") {
@@ -837,6 +862,11 @@ Authorization: `${tokenValue?.token}`, // example header
 			setColumns(columnToBeShown);
 			setSelectedColumns(columnToBeShown.map(el => el.index));
 	}
+
+	const getWeekOfRecoveryName = (code) => {
+	const day = Fortnight.find((d) => d.code === String(code));
+	return day ? day.name : "--";
+	};
 
 	return (
 		<div>
@@ -1095,7 +1125,7 @@ Authorization: `${tokenValue?.token}`, // example header
 					{reportData?.length > 0 && searchType2 !== "B" && (
 						<div className="mt-4">
 							<div className="text-xl -mb-4 text-slate-700 font-bold">
-								Daywise
+								Daywise 
 							</div>
 							<div className="mb-2">
 								<Radiobtn
@@ -1105,7 +1135,27 @@ Authorization: `${tokenValue?.token}`, // example header
 								/>
 							</div>
 
-							<div className="grid grid-cols-3 gap-5 mt-5 items-end">
+							<div className="grid grid-cols-3 gap-5 mt-5 items-end" style={{alignItems:'start'}}>
+
+
+								{searchType3 === "Fortnight" && (
+								<div>
+								<TDInputTemplateBr
+								placeholder="Select Weekday"
+								type="text"
+								label="Week of Recovery"
+								name="b_dayOfRecovery_Fortnight"
+								formControlName={weekOfRecovery}
+								handleChange={(e) => setWeekOfRecovery(e.target.value)}
+								data={Fortnight}
+								mode={2}
+								// disabled={
+								// 	!disbursementDetailsData.b_scheme || disburseOrNot
+								// }
+								/>
+								</div>
+								)}
+
 								<div>
 									<TDInputTemplateBr
 										placeholder="From Day"
@@ -1147,8 +1197,12 @@ Authorization: `${tokenValue?.token}`, // example header
 										</p>
 									)}
 								</div>
+								</div>
+
+								<div className="grid grid-cols-3 gap-5 mt-5 items-end">
 
 								<div>
+									
 									<button
 										className={`inline-flex items-center px-4 py-2 mt-0 ml-0 sm:mt-0 text-sm font-small text-center text-white border hover:border-green-600 border-teal-500 bg-teal-500 transition ease-in-out hover:bg-green-600 duration-300 rounded-full  dark:focus:ring-primary-900`}
 										onClick={() => {
@@ -1175,9 +1229,16 @@ Authorization: `${tokenValue?.token}`, // example header
 					{searchType2 === "M" && reportData?.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+								const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									return {
+									...el,
+									week_no: recoveryWeekNoText,
+									};
+								})}
 								pageSize={50}
-								columnTotal={[23, 24, 25, 26]}
+								columnTotal={[24, 25, 26, 27]}
 								dateTimeExceptionCols={[0, 1, 20, 22, 27]}
 								headersMap={overdueMemberReportHeader}
 								// colRemove={[16]}
@@ -1194,9 +1255,18 @@ Authorization: `${tokenValue?.token}`, // example header
 					{searchType2 === "G" && reportData?.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[16, 17, 18, 19]}
+								columnTotal={[17, 18, 19, 20]}
 								dateTimeExceptionCols={[0, 1, 15]}
 								headersMap={overdueGroupReportHeader}
 								// colRemove={[12]}
@@ -1213,9 +1283,18 @@ Authorization: `${tokenValue?.token}`, // example header
 					{searchType2 === "F" && reportData?.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[15, 16, 17, 18]}
+								columnTotal={[16, 17, 18, 19]}
 								dateTimeExceptionCols={[0, 1, 14]}
 								headersMap={overdueFundReportHeader}
 								// colRemove={[6]}
@@ -1234,9 +1313,18 @@ Authorization: `${tokenValue?.token}`, // example header
 					{searchType2 === "C" && reportData?.length > 0 && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[13, 14, 15, 16]}
+								columnTotal={[14, 15, 16, 17]}
 								dateTimeExceptionCols={[0, 1, 12]}
 								headersMap={overdueCOReportHeader}
 								// colRemove={[6]}

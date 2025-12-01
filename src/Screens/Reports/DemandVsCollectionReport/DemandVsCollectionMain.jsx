@@ -75,7 +75,22 @@ const options2 = [
 		label: "Weekly",
 		value: "Weekly",
 	},
+	{
+		label: "Fortnight",
+		value: "Fortnight",
+	},
 ]
+
+	const Fortnight = [
+	{
+		code: "1",
+		name: "Week (1-3)",
+	},
+	{
+		code: "2",
+		name: "Week (2-4)",
+	}
+	]
 
 function DemandVsCollectionMain() {
 	const [selectedColumns, setSelectedColumns] = useState(null);
@@ -121,6 +136,7 @@ function DemandVsCollectionMain() {
 	const [toDay, setToDay] = useState(() => "")
 	const [fromTouched, setFromTouched] = useState(false)
 	const [toTouched, setToTouched] = useState(false)
+	const [weekOfRecovery, setWeekOfRecovery] = useState("")
 
 	const maxDay = searchType2 === "Monthly" ? 31 : 7
 
@@ -129,7 +145,8 @@ function DemandVsCollectionMain() {
 		toDay !== "" &&
 		+fromDay >= 1 &&
 		+toDay <= maxDay &&
-		+fromDay <= +toDay
+		+fromDay <= +toDay &&
+		(searchType2 !== "Fortnight" || weekOfRecovery !== "");
 
 	const showError = (fromTouched || toTouched) && !isValidRange
 
@@ -672,6 +689,7 @@ const tokenValue = await getLocalStoreTokenDts(navigate);
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 			// branch_code: userDetails?.brn_code,
 			branch_code: branchCodes?.length === 0 ? [userDetails?.brn_code] : branchCodes,
 		}
@@ -687,14 +705,15 @@ Authorization: `${tokenValue?.token}`, // example header
 })
 			.then((res) => {
 
-
+				console.log(res, 'ressssssssssssssssssssssssssssssss');
+				
 			
 				
 				if(res?.data?.suc === 0){
-// Message('error', res?.data?.msg)
-navigate(routePaths.LANDING)
-localStorage.clear()
-} else {
+				// Message('error', res?.data?.msg)
+				navigate(routePaths.LANDING)
+				localStorage.clear()
+				} else {
 				
 				setReportData(res?.data?.groupwise_demand_collec_data_day?.msg)
 				}
@@ -718,6 +737,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 			branch_code: branchCodes?.length === 0 ? [userDetails?.brn_code] : branchCodes,
 			fund_id: selectedFund === "F" ? selectedFunds : [selectedFund],
 		}
@@ -767,6 +787,7 @@ Authorization: `${tokenValue?.token}`, // example header
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 			co_id:coCodes?.length === 0
 					? selectedCO === "AC"
 						? allCos
@@ -813,6 +834,7 @@ localStorage.clear()
 			period_mode: searchType2,
 			from_day: fromDay,
 			to_day: toDay,
+			week_no : weekOfRecovery,
 			// branch_code: branchCodes
 			branch_code: branchCodes?.length === 0 ? [userDetails?.brn_code] : branchCodes,
 		}
@@ -994,6 +1016,12 @@ Authorization: `${tokenValue?.token}`, // example header
 		code: 2025 + i,
 		name: (2025 + i).toString(),
 	}))
+
+
+	const getWeekOfRecoveryName = (code) => {
+	const day = Fortnight.find((d) => d.code === String(code));
+	return day ? day.name : "--";
+	};
 
 	return (
 		<div>
@@ -1369,7 +1397,28 @@ Authorization: `${tokenValue?.token}`, // example header
 								/>
 							</div>
 
-							<div className="grid grid-cols-3 gap-5 mt-5 items-end">
+							{/* <div className="grid grid-cols-3 gap-5 mt-5 items-end"> */}
+							<div className="grid grid-cols-3 gap-5 mt-5 items-end" style={{alignItems:'start'}}>
+
+
+								{searchType2 === "Fortnight" && (
+								<div>
+								<TDInputTemplateBr
+								placeholder="Select Weekday"
+								type="text"
+								label="Week of Recovery"
+								name="b_dayOfRecovery_Fortnight"
+								formControlName={weekOfRecovery}
+								handleChange={(e) => setWeekOfRecovery(e.target.value)}
+								data={Fortnight}
+								mode={2}
+								// disabled={
+								// 	!disbursementDetailsData.b_scheme || disburseOrNot
+								// }
+								/>
+								</div>
+								)}
+
 								<div>
 									<TDInputTemplateBr
 										placeholder="From Day"
@@ -1412,7 +1461,10 @@ Authorization: `${tokenValue?.token}`, // example header
 									)}
 								</div>
 
-								<div>
+								</div>
+
+								<div className="grid grid-cols-3 gap-5 mt-5 items-end">
+									<div>
 									<button
 										className={`inline-flex items-center px-4 py-2 mt-0 ml-0 sm:mt-0 text-sm font-small text-center text-white border hover:border-green-600 border-teal-500 bg-teal-500 transition ease-in-out hover:bg-green-600 duration-300 rounded-full  dark:focus:ring-primary-900`}
 										onClick={() => {
@@ -1441,9 +1493,18 @@ Authorization: `${tokenValue?.token}`, // example header
 					{reportData.length > 0 && searchType === "G" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[8, 15, 16, 17, 18]}
+								columnTotal={[8, 16, 17, 18, 19]}
 								// colRemove={[13]}
 								dateTimeExceptionCols={[8, 13, 14, 15]}
 								headersMap={groupwiseDemandVsCollectionHeader}
@@ -1462,9 +1523,18 @@ Authorization: `${tokenValue?.token}`, // example header
 					{reportData.length > 0 && searchType === "F" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
-								columnTotal={[11, 12, 13, 14]}
+								columnTotal={[12, 13, 14]}
 								// dateTimeExceptionCols={[8]}
 								headersMap={fundwiseDemandVsCollectionHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1482,7 +1552,16 @@ Authorization: `${tokenValue?.token}`, // example header
 					{reportData.length > 0 && searchType === "C" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
 								columnTotal={[10, 11, 12, 13]}
 								// dateTimeExceptionCols={[8]}
@@ -1502,7 +1581,16 @@ Authorization: `${tokenValue?.token}`, // example header
 					{reportData.length > 0 && searchType === "M" && (
 						<>
 							<DynamicTailwindTable
-								data={reportData}
+								// data={reportData}
+								data={reportData?.map((el) => {
+									const recoveryWeekNoText = getWeekOfRecoveryName(el.week_no);
+									
+
+									 return {
+										...el,
+										week_no: recoveryWeekNoText,
+									 };
+								})}
 								pageSize={50}
 								columnTotal={[12, 20, 21, 22, 23]}
 								dateTimeExceptionCols={[11, 16, 17, 18, 19]}

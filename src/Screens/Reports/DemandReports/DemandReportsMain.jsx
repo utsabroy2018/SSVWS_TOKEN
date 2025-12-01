@@ -101,7 +101,7 @@ function DemandReportsMain() {
 	// const [tot_sum, setTotSum] = useState(0)
 	// const [search, setSearch] = useState("")
 	const [fetchedReportDate, setFetchedReportDate] = useState(() => "")
-	const [weekOfRecovery, setWeekOfRecovery] = useState(0)
+	const [weekOfRecovery, setWeekOfRecovery] = useState("")
 
 	const navigate = useNavigate()
 	
@@ -170,6 +170,11 @@ function DemandReportsMain() {
 	// 		handleFetchCO()
 	// 	}
 	// }, [searchType])
+
+	// useEffect(() => {
+	// 	console.log(isValidRange, 'isValidRangeisValidRangeisValidRange');
+		
+	// }, [])
 
 	
 
