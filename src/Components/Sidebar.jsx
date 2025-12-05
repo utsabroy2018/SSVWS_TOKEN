@@ -538,6 +538,16 @@ function Sidebar({ mode = 0 }) {
 								// hidden: data?.demand_vs_collection == "Y" ? false : true,
 							},
 							{
+								key: "sub6-15",
+								icon: <BarChartOutlined />,
+								label: (
+									<Link to={"/homebm/advancecollectionreport"}>
+										Advance Collection Report
+									</Link>
+								),
+								// hidden: data?.demand_vs_collection == "Y" ? false : true,
+							},
+							{
 								key: "sub6-12",
 								icon: <BarChartOutlined />,
 								label: (

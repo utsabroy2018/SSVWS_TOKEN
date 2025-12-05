@@ -11,6 +11,7 @@ import { Democontext } from "./Context/Democontext"
 import Loader from "./Components/Loader"
 import CircularProgress from "@mui/material/CircularProgress"
 import RejectDisbursement from "./Screens/BMHome/Loans/RejectDisbursement"
+// import AdvanceCollectionReportMain from "./Screens/Reports/AdvanceCollectionReport/AdvanceCollectionReportMain"
 // import LoanCalculatorIndex from "./Screens/BMHome/Loans/LoanCalculator/index copy"
 // import LoanStatementMain from "./Screens/Reports/LoanStatements/LoanStatementMain"
 // import LoanTransactionsMain from "./Screens/Reports/LoanTransactions/LoanTransactionsMain"
@@ -91,6 +92,7 @@ const TestPage = lazy(() => import("./Screens/Reports/LoanTransactions/testPage"
 const LoanStatementMain =  lazy(() => import("./Screens/Reports/LoanStatements/LoanStatementMain"));
 const DemandReportsMain = lazy(() => import("./Screens/Reports/DemandReports/DemandReportsMain"));
 const DemandVsCollectionMain = lazy(() => import("./Screens/Reports/DemandVsCollectionReport/DemandVsCollectionMain"));
+const AdvanceCollectionReportMain = lazy(() => import("./Screens/Reports/AdvanceCollectionReport/AdvanceCollectionReportMain"));
 const GroupClose =  lazy(() => import("./Screens/Reports/GroupClose/GroupClose"));
 const OutstaningReportMain =  lazy(() => import("./Screens/Reports/OutstandingReports/OutstaningReportMain"));
 const OverdueReport = lazy(() => import("./Screens/Reports/OverdueReport/OverdueReport"));
@@ -486,6 +488,10 @@ const router = createBrowserRouter([
 							{
 								path: "demandvscollectionreport",
 								element: <DemandVsCollectionMain />,
+							},
+							{
+								path: "advancecollectionreport",
+								element: <AdvanceCollectionReportMain />,
 							},
 							{
 								path: "overduereport",
