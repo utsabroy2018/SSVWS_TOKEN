@@ -121,7 +121,7 @@ function DisbursedLoanApproveBM() {
 						<RecoveryApproveTable
 							flag="BM"
 							loanAppData={loanApplications}
-							title="Approve Transaction"
+							title="Approve Transaction rrrr"
 							setSearch={(data) => setSearch(data)}
 							loanType={loanType}
 							fetchLoanApplications={fetchLoanApplications}

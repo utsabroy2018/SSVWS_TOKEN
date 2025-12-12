@@ -147,6 +147,8 @@ const ApproveEditMemberTrans = lazy(() => import("./Screens/Admin/Master/Employe
 const ViewMemberTransfer = lazy(() => import("./Screens/BMHome/ViewMemberTransfer"));
 const TransferMemberViewScreen = lazy(() => import("./Screens/BMHome/TransferMemberViewScreen"));
 const MonthEnd = lazy(() => import("./Screens/Admin/UserManagement/MonthEnd"));
+const MonthOpen = lazy(() => import("./Screens/Admin/UserManagement/MonthOpen"));
+
 const Payroll = lazy(() => import("./Screens/Admin/Payroll/Payroll"));
 
 const RejectTransaction = lazy(() => import("./Screens/BMHome/Loans/RejectTransaction"));
@@ -655,6 +657,11 @@ const router = createBrowserRouter([
 								path: "monthend",
 								element: <MonthEnd />,
 							},
+		{
+								path: "monthopen",
+								element: <MonthOpen />,
+							},
+							
 							{
 								path: "transferusermanage",
 								element: <TransferUserManage />,

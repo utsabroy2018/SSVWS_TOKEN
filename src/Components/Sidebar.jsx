@@ -51,6 +51,7 @@ function Sidebar({ mode = 0 }) {
 	const userDetails = JSON.parse(localStorage.getItem("user_details"))
 	const [open, setOpen] = useState(false)
 	const [permissions, setPermissions] = useState()
+	const [permissions_ApprovPending, setPermissions_ApprovPending] = useState()
 	const { socket, connectSocket } = useSocket()
 	const navigate = useNavigate()
 	
@@ -105,7 +106,7 @@ function Sidebar({ mode = 0 }) {
 		
 
 		const fetchMenu = async (userTypeId) => {
-			console.log({user_type_id: userTypeId}, 'ggggggggggggggg');
+			// console.log({user_type_id: userTypeId}, 'ggggggggggggggg');
 			const tokenValue = await getLocalStoreTokenDts(navigate);
 			axios
 			.post(url + "/user_menu/get_menu", { user_type_id: userTypeId }, {
@@ -410,6 +411,22 @@ function Sidebar({ mode = 0 }) {
 								label: <Link to={"/homeadmin/monthend"}>Month End</Link>,
 								// hidden: data?.transfer_user == "Y" ? false : true,
 							},
+							// {
+							// 	key: "sub7-6",
+							// 	icon: <TableOutlined />,
+							// 	label: <Link to={"/homeadmin/monthopen"}>Day Open</Link>,
+							// 	// hidden: data?.transfer_user == "Y" ? false : true,
+							// },
+							// ⭐ ADD THIS CONDITIONALLY
+							...(userDetails?.brn_code === "100"
+								? [
+										{
+											key: "sub7-6",
+											icon: <TableOutlined />,
+											label: <Link to={"/homeadmin/monthopen"}>Day Open</Link>,
+										},
+								]
+								: []),
 						],
 					},
 					{
@@ -574,6 +591,131 @@ function Sidebar({ mode = 0 }) {
 						],
 					},
 				]
+
+				var items_all_user2 = [
+					{
+						key: "sub1",
+						icon: <LineChartOutlined />,
+						label: <Link to={"/homebm/"}>Dashboard</Link>,
+						// hidden: false,
+						children: [],
+					},
+					{
+						key: "sub2",
+						icon: <ContainerOutlined />,
+						label: "GRT",
+						// hidden: data?.grt == "Y" ? false : true,
+						children: [
+						],
+					},
+					{
+						key: "sub3",
+						icon: <DeploymentUnitOutlined />,
+						label: "Groups",
+						// hidden: data?.groups == "Y" ? false : true,
+						children: [
+							// {
+							// 	key: "sub3-5",
+							// 	icon: <CheckCircleOutlined />,
+							// 	label: (
+							// 		<Link to={"/homebm/trancefercofromapprove-unic"}>
+							// 			Approve Group Transfer
+							// 		</Link>
+							// 	),
+							// 	// hidden: data?.approve_group_transfer == "Y" ? false : true,
+							// },
+							// {
+							// 	key: "sub3-8",
+							// 	icon: <CheckCircleOutlined />,
+							// 	label: (
+							// 		<Link to={"/homebm/approvemembertransfer"}>
+							// 			Approve Member Transfer
+							// 		</Link>
+							// 	),
+							// 	// hidden: data?.view_group_transfer == "Y" ? false : true,
+							// },
+						],
+					},
+					{
+						key: "sub_att",
+						icon: <ImportOutlined />,
+						label: "Attendance",
+						// hidden: data?.attendance == "Y" ? false : true,
+						children: [
+						],
+					},
+					{
+						key: "sub4",
+						icon: <ThunderboltOutlined />,
+						label: "Loans",
+						// hidden: data?.loans == "Y" ? false : true,
+						children: [
+							// {
+							// 	key: "sub4-4",
+							// 	icon: <EyeOutlined />,
+							// 	label: <Link to={"/homebm/rejecttxn"}>Reject Transaction</Link>,
+							// 	// hidden: data?.view_loan == "Y" ? false : true,
+							// },
+							// {
+							// 	key: "sub4-6",
+							// 	icon: <EyeOutlined />,
+							// 	label: <Link to={"/homebm/rejecdisbursement"}>Reject Disbursement</Link>,
+							// 	// hidden: data?.view_loan == "Y" ? false : true,
+							// },
+							{
+								key: "sub4-2",
+								icon: <CheckCircleOutlined />,
+								label: "Approve Transaction",
+								// hidden: data?.approve_transaction == "Y" ? false : true,
+								children: [
+									{
+										key: "sub4-2-1",
+										icon: <CheckCircleOutlined />,
+										label: (
+											<Link to={"/homebm/approvedisbursed"}>Disburse</Link>
+										),
+										// hidden: data?.approve_transaction == "Y" ? false : true,
+									},
+									{
+										key: "sub4-2-2",
+										icon: <CheckCircleOutlined />,
+										label: <Link to={"/homebm/approveloan"}>Recovery</Link>,
+										// hidden: data?.approve_transaction == "Y" ? false : true,
+									},
+								],
+							},
+						],
+					},
+					{
+						key: "sub5",
+						icon: <DatabaseOutlined />,
+						label: "Master",
+						// hidden: data?.master == "Y" ? false : true,
+						children: [
+						],
+					},
+					{
+						key: "sub7",
+						icon: <ImportOutlined />,
+						label: "User Management",
+						// hidden: data?.user_management == "Y" ? false : true,
+						children: [
+						],
+					},
+					{
+						label: "Reports",
+						key: "sub6",
+						icon: <BarsOutlined />,
+						// hidden: data?.reports == "Y" ? false : true,
+						children: [
+						],
+					},
+				]
+
+				
+
+
+				
 				var data = res?.data?.msg
 				var userMenuData = []
 				for (let dt of data) {
@@ -595,6 +737,32 @@ function Sidebar({ mode = 0 }) {
 					userMenuData.push(tempMenuData[0])
 				}
 				setPermissions(userMenuData)
+
+
+				var data_ApprPend = res?.data?.msg
+				var userMenuData_ApprPend = []
+				for (let dt of data_ApprPend) {
+					var tempMenuData = items_all_user2.filter(
+						(item) => item.key == dt.key
+					)
+					if (dt.has_child != "N" && dt.children) {
+						if (dt.children.length > 0) {
+							var tempChildren = []
+							for (let child of dt.children) {
+								var tempChild = tempMenuData[0].children.filter(
+									(item) => item.key == child.key
+								)
+								tempChildren.push(tempChild[0])
+							}
+							tempMenuData[0].children = tempChildren
+						}
+					}
+					userMenuData_ApprPend.push(tempMenuData[0])
+				}
+				setPermissions_ApprovPending(userMenuData_ApprPend)
+
+
+				
 
 				}
 
@@ -1082,6 +1250,7 @@ function Sidebar({ mode = 0 }) {
 	const drawerWidth = 257
 
 	return (
+
 		<div className="bg-slate-200 dark:bg-gray-800">
 			<button
 				onClick={showDrawer}
@@ -1138,7 +1307,7 @@ function Sidebar({ mode = 0 }) {
 						/>
 					</div> */}
 					{/* <MenusBr data={permissions} reportProgress={reportProgress} />  */}
-					<MenusBr data={permissions} /> 
+					<MenusBr data={permissions} data_ApprovPending={permissions_ApprovPending}  /> 
 
 					
 
@@ -1258,7 +1427,7 @@ function Sidebar({ mode = 0 }) {
 				</div>
 			</div>
 		</div>
-	)
+		)
 }
 
 export default Sidebar

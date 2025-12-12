@@ -29,14 +29,19 @@ import IMG from "../Assets/Images/ssvws_crop-round.jpg"
 import Tooltip from "@mui/material/Tooltip"
 import { useNavigate } from "react-router-dom"
 import DialogBox from "./DialogBox"
+import { routePaths } from "../Assets/Data/Routes"
 
-function MenusBr({ theme, data}) {
+function MenusBr({ theme, data, data_ApprovPending}) {
 	console.log(data, "-------")
-	const userDetails = JSON.parse(localStorage.getItem("user_details"))
+	// const userDetails = JSON.parse(localStorage.getItem("user_details"))
 	const [current, setCurrent] = React.useState("sub1")
 	const [visibleModal, setVisibleModal] = useState(() => false)
 	const [visibleModal2, setVisibleModal2] = useState(() => false)
 	const [menuItems, setMenuItems] = useState([])
+	const [menuItems_ApprPend, setMenuItems_ApprPend] = useState([])
+	const userDetails = JSON.parse(localStorage.getItem("user_details")) || {}
+	// const [getMenuShow, setMenuShow] = useState(localStorage.getItem("pendingApprove"))
+	const [getMenuShow, setMenuShow] = useState('')
 	const navigate = useNavigate()
 
 	const onClick = (e) => {
@@ -64,9 +69,44 @@ function MenusBr({ theme, data}) {
 	// };
 
 	useEffect(() => {
-		console.log(localStorage.getItem("reportDataProgress"), 'localllllllll');
-		
+	// Update getMenuShow from localStorage
+	const pendingApprove = localStorage.getItem("pendingApprove")
+	setMenuShow(pendingApprove)
 	}, [])
+
+	// Listen for localStorage changes
+	useEffect(() => {
+
+	const handleStorageChange = () => {
+	const pendingApprove = localStorage.getItem("pendingApprove")
+	setMenuShow(pendingApprove)
+	}
+
+	// Add event listener for storage changes
+	window.addEventListener('storage', handleStorageChange)
+
+	// Also check periodically (optional, as a fallback)
+	const interval = setInterval(() => {
+	const pendingApprove = localStorage.getItem("pendingApprove")
+	// if (pendingApprove !== getMenuShow) {
+	console.log(getMenuShow, 'getMenuShowgetMenuShow', localStorage.getItem("pendingApprove") == 'yes');
+	if (pendingApprove === 'yes') {
+	setMenuShow(pendingApprove)
+	} 
+	// else {
+	// 	navigate(routePaths.LANDING)
+	// 	localStorage.clear()
+	// }
+	}, 500) // Check every second
+
+	return () => {
+	window.removeEventListener('storage', handleStorageChange)
+	clearInterval(interval)
+	}
+	}, [getMenuShow])
+
+
+
 
 	var items_all_user1 = [
 		{
@@ -429,14 +469,27 @@ function MenusBr({ theme, data}) {
 			children: [],
 		},
 	]
+	
 	var items_all_user_copy = data
+
+	var items_all_user_copy_ApprovPending = data_ApprovPending
+
 	useEffect(() => {
 		// console.log(items_all_user_copy, '++++++++++++');
 		if (data) {
 			items_all_user_copy = data
 			setMenuItems(items_all_user_copy)
+			
 			console.log(items_all_user_copy, "++++++++++++")
 		}
+
+		if (data_ApprovPending) {
+			items_all_user_copy_ApprovPending = data_ApprovPending
+			setMenuItems_ApprPend(items_all_user_copy_ApprovPending)
+			
+			console.log(items_all_user_copy_ApprovPending, "ddddddddddddddddd")
+		}
+		
 		// for (let i = 0; i < items_all_user1.length; i++) {
 		//   if (items_all_user1[i].children?.length > 0) {
 		//     // debugger;
@@ -480,6 +533,9 @@ function MenusBr({ theme, data}) {
 		//   setItems(userMenuData)
 		// // }, 100);
 		// console.log(userMenuData, '-------------');
+
+		
+		
 	}, [data])
 
 	// useEffect(() => {
@@ -2249,17 +2305,97 @@ function MenusBr({ theme, data}) {
 		},
 	]
 
+	const menuItems_PendingSSVWS = [
+  		// ⭐ Add your submenu here
+		{
+		key: "sub1",
+		icon: <LineChartOutlined />,
+		label: <Link to={"/homebm/"}>Dashboard</Link>,
+		// hidden: false,
+		children: [],
+		},
+		{
+		key: "sub7-6",
+		// icon: <TableOutlined />,
+		label: <Link to={"/homeadmin/monthopen"}>Day Open</Link>,
+		// hidden: data?.transfer_user == "Y" ? false : true,
+		}
+
+];
+
+
+
 	return (
+		
 		<div className="bg-slate-600 flex justify-between align-middle gap-4 rounded-full">
 			<img src={IMG} className="w-12 h-12 p-2 -mr-6" alt="Flowbite Logo" />
+			
+
+			{getMenuShow && getMenuShow === "yes" ? (
+			
+
+			<>
+			{userDetails?.brn_code === "100" ? (
 			<Menu
+			onClick={onClick}
+			selectedKeys={[current]}
+			items={menuItems_PendingSSVWS}
+			// disabled={getMenuShow === "yes" ? true : false}
+			mode="horizontal"
+			style={{
+			width: 1000,
+			backgroundColor: "transparent",
+			border: "none",
+			}}
+			className="rounded-full items-center justify-center"
+			/>
+			) : (
+			
+			<Menu
+			onClick={onClick}
+			selectedKeys={[current]}
+			items={menuItems_ApprPend}
+			//   disabled={getMenuShow === "yes"}
+			mode="horizontal"
+			style={{
+			width: 1000,
+			backgroundColor: "transparent",
+			border: "none",
+			}}
+			className="rounded-full items-center justify-center"
+			/>
+			
+
+			)}
+			</>
+
+			
+
+			
+			) : (
+			<>
+			<Menu
+			onClick={onClick}
+			selectedKeys={[current]}
+			items={menuItems}
+			disabled={getMenuShow === "yes" ? true : false}
+
+			mode="horizontal"
+			style={{
+			width: 1000,
+			backgroundColor: "transparent",
+			border: "none",
+			}}
+			className="rounded-full items-center justify-center"
+			/>
+			</>
+			)}
+
+			{/* <Menu
 				onClick={onClick}
 				selectedKeys={[current]}
-				items={menuItems}
-				// items={items_all_user_copy}
-				// userDetails?.id === 1 || userDetails?.id === 2 || userDetails?.id === 5 || userDetails.id==11
-				//   ? (userDetails?.id === 2 || userDetails.id===11)? userDetails.id==11? items_user_type_11: items_user_type_2:items_user_type_15:userDetails.id==4?userDetails.brn_code=='100'?items_user_type_4_100:items_user_type_2:userDetails.id==3? items_user_type_3:items_user_type_10
-
+				items={menuItems_PendingSSVWS}
+				// disabled={getMenuShow === "yes" ? true : false}
 				mode="horizontal"
 				style={{
 					width: 1000,
@@ -2267,7 +2403,10 @@ function MenusBr({ theme, data}) {
 					border: "none",
 				}}
 				className="rounded-full items-center justify-center"
-			/>
+			/> */}
+			
+
+			
 			{/* Progress Report */}
 			
 			{/* {localStorage.getItem("reportDataProgress") !== null ? (
@@ -2341,7 +2480,8 @@ function MenusBr({ theme, data}) {
 				visible={visibleModal2}
 			/>
 		</div>
-	)
+
+)
 }
 
 export default MenusBr

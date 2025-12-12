@@ -26,6 +26,8 @@ import AlertComp from "../../../Components/AlertComp"
 import { getLocalStoreTokenDts } from "../../../Components/getLocalforageTokenDts"
 import { useNavigate } from "react-router"
 import { routePaths } from "../../../Assets/Data/Routes"
+import { CheckCircleOutlined, EyeOutlined } from "@ant-design/icons"
+import { Link } from "react-router-dom"
 
 const formatINR = (num) =>
 	new Intl.NumberFormat("en-IN", {
@@ -127,6 +129,7 @@ export default function Dashboard() {
 	const [totalGroupsCount, setTotalGroupsCount] = useState("")
 	const [activeUsersCount, setActiveUsersCount] = useState("")
 	const [activeUsers, setActiveUsers] = useState([])
+	const [getOpenDt_CloseDt, setOpenDt_CloseDt] = useState("N")
 
 	const [disbursedLoanDetailCountsToday, setDisbursedLoanDetailCountsToday] =
 		useState({
@@ -270,6 +273,10 @@ export default function Dashboard() {
 			}))
 			)
 
+			
+
+			
+
 			}
 			
 		} catch (error) {
@@ -383,6 +390,7 @@ export default function Dashboard() {
 
 		try {
 		const creds = { branch_code: getBranchCodes() }
+
 		const res = await axios.post(
 		`${url}/admin/dshboard_user_logged_in_details`,
 		creds,
@@ -725,6 +733,7 @@ localStorage.clear()
 	// }
 
 	// CO Start
+	
 	const fetchCOTotalGrtDetails = async (flag) => {
 		setLoading(true)
 		try {
@@ -1467,14 +1476,75 @@ localStorage.clear()
 		}
 	}
 
+
+	const check_OpenDt_CloseDt = async () => {
+		// setLoading(true)
+
+		const tokenValue = await getLocalStoreTokenDts(navigate);
+
+		try {
+			// const creds = { branch_code: getBranchCodes()[0] }
+
+			// const creds = { branch_code: getBranchCodes() }
+			const creds = { branch_code: userDetails?.brn_code }
+
+			// return;
+			const res = await axios.post(`${url}/admin/fetch_brnwise_end_details`, creds, {
+			headers: {
+			Authorization: `${tokenValue?.token}`, // example header
+			"Content-Type": "application/json", // optional
+			},
+			})
+			
+			// console.log(res?.data?.suc, 'dataaaaaaaa', 'responseeeeeeeeeee');
+			
+			if(res?.data?.suc === 0){
+
+			navigate(routePaths.LANDING)
+			localStorage.clear()
+			Message('error', res?.data?.msg)
+
+			} else {
+			
+			// if(userDetails?.brn_code === '100'){
+			
+			// } else {
+			console.log(res?.data.end_flag, 'yyyyyyyyyyyyyyyyyyyyyyyyyy___', creds);
+
+			if (res?.data.end_flag === 'C') {
+			// alert("Closed date and opened date cannot be the same!");
+			localStorage.setItem("pendingApprove", 'yes')
+			setOpenDt_CloseDt(res?.data.end_flag)
+			}
+			// }
+			// console.log(res?.data, 'checkdateeeeeeeeeeeeeeeeeeeeeee', res?.data.end_flag);
+
+			// setDateOfOperation(res?.data?.data?.date_of_operation)
+
+			}
+
+			
+		} catch (error) {
+		// navigate(routePaths.LANDING)
+		// localStorage.clear()
+		Message("error", "Some error occurred while fetching data!")
+		console.log("ERRR", error)
+		} finally {
+			// setLoading(false)
+		}
+	}
+
+
 	useEffect(() => {
 		fetchBranches()
+		
 
 	}, [])
 
 	useEffect(() => {
 		if (branches.length) {
 			fetchDateOfOperation()
+			check_OpenDt_CloseDt()
 			if (+userDetails?.id === 1) {
 				fetchCOTotalGrtDetails(grtPeriod !== "Today" ? "Month" : "Today")
 				fetchActiveGroupsCO()
@@ -1495,6 +1565,7 @@ localStorage.clear()
 				fetchUnapprovedTxnsTotal()
 				fetchUnapprovedTransfers()
 				// fetchUnapprovedTxnsMonth()
+				
 			}
 		}
 	}, [grtPeriod, choosenBranch, branches])
@@ -1558,6 +1629,9 @@ localStorage.clear()
 					branch_code: getBranchCodes(),
 					recov_day: odFlags.recovDay
 				}
+
+				
+
 				axios.post(`${url}/admin/dashboard_cowise_overdue_amt`,payLoad).then(res =>{
 						setOverdueLoadingPendingStatus(false);
 						showModal(res?.data?.suc == 1)
@@ -1584,8 +1658,38 @@ localStorage.clear()
 					for {odDtls?.noOfGroups} group is </span>{formatINR(odDtls?.data)}</p>}
 				/>
 			}
+
+{getOpenDt_CloseDt && getOpenDt_CloseDt === 'Y' &&(
+	<div class="bg-orange-100 border-t-4 border-orange-500 rounded-b text-orange-700 px-4 py-3 shadow-md" role="alert">
+  <div class="flex">
+    <div class="py-1"><svg class="fill-current h-6 w-6 text-orange-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
+    <div>
+      <p class="font-bold pb-3 pt-1">ALERT</p>
+	  <p class="pb-3 pt-1">Pending Approvals</p>
+	  {/* <div className="flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm pr-5"><CheckCircleOutlined /> <Link to={"/homebm/trancefercofromapprove-unic"}>
+			Approve Group Transfer
+			</Link></p>
+		<p class="text-sm pr-5"><CheckCircleOutlined /> <Link to={"/homebm/approvemembertransfer"}>
+			Approve Member Transfer
+			</Link></p>
+
+		<p class="text-sm pr-5"><CheckCircleOutlined /> <Link to={"/homebm/approvedisbursed"}>Approve Transaction Disburse</Link></p>	
+		<p class="text-sm pr-5"><CheckCircleOutlined /> <Link to={"/homebm/approveloan"}>Approve Transaction Recovery</Link></p>	
+		<p class="text-sm pr-5"><EyeOutlined /> <Link to={"/homebm/rejecttxn"}>Reject Transaction</Link></p>	
+		<p class="text-sm"><EyeOutlined /> <Link to={"/homebm/rejecdisbursement"}>Reject Disbursement</Link></p>	
+			</div> */}
+			
+    </div>
+  </div>
+</div>
+)}
+
+
+			
+
 			<div className="flex flex-col md:flex-row justify-between items-center">
-				<h1 className="text-2xl font-bold text-slate-700 uppercase">
+				<h1 className="text-2xl font-bold text-slate-700 uppercase pl-5">
 					Welcome back,{" "}
 					<span className="text-slate-600 text-2xl font-thin">
 						{userDetails?.emp_name}
@@ -1619,6 +1723,7 @@ localStorage.clear()
 					/>
 				</div>
 			)}
+
 
 			{/* {+userDetails?.id !== 1 && ( */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
