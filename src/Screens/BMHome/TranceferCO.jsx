@@ -119,7 +119,8 @@ function TranceferCO({ groupDataArr }) {
 		to_co: "",
 		to_branch: "",
 		remarks_: "",
-		trxn_date: new Date().toISOString().split("T")[0], // Set current date in YYYY-MM-DD format
+		// trxn_date: new Date().toISOString().split("T")[0], // Set current date in YYYY-MM-DD format
+		trxn_date: new Date(userDetails?.transaction_date).toISOString().split("T")[0], // Set current date in YYYY-MM-DD format
 		has_un_approve_trxn:false
 	}
 	const [formValues, setValues] = useState(initialValues)
@@ -552,6 +553,7 @@ localStorage.clear()
 						branch_code:userDetails?.brn_code,
 						transaction_date: formik.values.trxn_date,
 					}
+
 						axios.post(`${url}/admin/fetch_unapprove_dtls_before_trns_dt`, payload, {
 						headers: {
 						Authorization: `${tokenValue?.token}`, // example header
@@ -590,16 +592,17 @@ localStorage.clear()
 																trf_date:  moment(`${formik.values.trxn_date} ${time}`).format(),
 															}
 
-															
+															// console.log(payload, "payloadpayloadpayloadpayload", creds, 'kk', formik.values.trxn_date);
+															// return
 
 															// console.log(, "approveDataaftersubmit");
 															// console.log(new Date(`${formik.values.trxn_date}T${(new Date()).toTimeString().split(' ')[0]}`), "approveDataaftersubmit");
 															axios.post(`${url}/transfer_co`, creds, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-})
+															headers: {
+															Authorization: `${tokenValue?.token}`, // example header
+															"Content-Type": "application/json", // optional
+															},
+															})
 																.then((response) => {
 																	setLoading(false)
 																	
@@ -1094,11 +1097,13 @@ localStorage.clear()
 										) : null}
 									</div>
 									<div>
+										{/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
 										<TDInputTemplateBr
 											placeholder="Transaction Date"
 											type="date"
 											name="trxn_date"
 											label="Transaction Date"
+											disabled={true}
 											handleChange={formik.handleChange}
 											handleBlur={(e) =>{
 												formik.handleBlur(e);
@@ -1110,7 +1115,8 @@ localStorage.clear()
 													formik.setFieldValue('has_un_approve_trxn', false);
 												}
 											}}
-											formControlName={formik.values.trxn_date}
+											// formControlName={formik.values.trxn_date}
+											formControlName={userDetails?.transaction_date}
 											value={formValues.trxn_date}
 											mode={1}
 												

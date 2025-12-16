@@ -149,7 +149,7 @@ function DisbursmentForm() {
 	}
 
 	const [transactionDetailsData, setTransactionDetailsData] = useState({
-		b_tnxDate: formatDateToYYYYMMDD(new Date()),
+		b_tnxDate: formatDateToYYYYMMDD(new Date(userDetails?.transaction_date)),
 		b_bankName: "",
 		b_chequeOrRefNo: "",
 		b_chequeOrRefDate: formatDateToYYYYMMDD(new Date()),
@@ -987,6 +987,10 @@ localStorage.clear()
 					transaction_date: transactionDetailsData.b_tnxDate,
 				}
 
+				// console.log(payload, 'payloadpayloadpayloadpayload', '1sttttttt');
+				
+				// return;
+
 				const tokenValue = await getLocalStoreTokenDts(navigate);
 
 				axios.post(`${url}/admin/fetch_unapprove_dtls_before_trns_dt`, payload, {
@@ -1075,6 +1079,9 @@ localStorage.clear()
 			"mode" : disbursementDetailsData?.b_mode,
 			"period" :  disbursementDetailsData?.b_period
 		}
+
+		// console.log(payLoad, 'payloadpayloadpayloadpayload', '2nddddddd');
+		// return;
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -1856,11 +1863,13 @@ localStorage.clear()
 											Required!
 										</span>
 									)}
+									{/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
 									<TDInputTemplateBr
 										placeholder="Transaction date..."
 										type="date"
 										label="Transaction Date"
 										name="b_tnxDate"
+										disabled={true}
 										formControlName={transactionDetailsData.b_tnxDate}
 										handleChange={(e) =>{
 											handleChangeTnxDetailsDetails(e);

@@ -55,11 +55,11 @@ function MemberTransferForm() {
           branch_code: userDetails.brn_code,
           grp_mem: e,
         }, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-})
+        headers: {
+        Authorization: `${tokenValue?.token}`, // example header
+        "Content-Type": "application/json", // optional
+        },
+        })
         .then((res) => {
 
           // console.log(res?.data, 'hhhhhhhhhhhh', {branch_code: userDetails.brn_code,grp_mem: e,});
@@ -183,8 +183,12 @@ localStorage.clear()
     setLoading(true)
      const payload = {
             branch_code:userDetails?.brn_code,
-            transaction_date: todayDate,
+            // transaction_date: todayDate,
+            transaction_date: userDetails?.transaction_date,
           }
+
+          
+          
           const tokenValue = await getLocalStoreTokenDts(navigate);
         axios.post(`${url}/admin/fetch_unapprove_dtls_before_trns_dt`, payload, {
 headers: {
@@ -215,7 +219,8 @@ localStorage.clear()
                 }
                 else{
                     const cred = {
-                    mem_trans_date: todayDate,
+                    // mem_trans_date: todayDate,
+                    mem_trans_date: userDetails?.transaction_date,
                     from_branch: from_branch_id,
                     from_co: from_co_id,
                     to_group: group_to,
@@ -233,6 +238,9 @@ localStorage.clear()
                         };
                       }),
                   };
+
+                  // console.log(payload, "payloadpayloadpayloadpayload", cred);
+          // return;
                 
                   // console.log(cred);
                   axios.post(`${url}/transfer_member`,cred, {
@@ -417,6 +425,7 @@ Authorization: `${tokenValue?.token}`, // example header
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
+            {/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
             <TDInputTemplateBr
               placeholder="Date"
               type="date"

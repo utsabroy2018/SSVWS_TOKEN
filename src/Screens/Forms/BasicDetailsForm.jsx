@@ -188,6 +188,9 @@ function BasicDetailsForm({ memberDetails }) {
 			approval_status: memberDetails?.approval_status,
 		}
 
+		// console.log(creds, 'credscredscredscredscredscredscreds', 'newwwwwwww');
+		
+
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
 		await axios
@@ -279,6 +282,8 @@ Authorization: `${tokenValue?.token}`, // example header
 			grt_date: formik.values.b_grtDate,
 		}
 		// console.log(creds, 'credscredscredscredscredscredscreds');
+
+		// return;
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -683,12 +688,14 @@ localStorage.clear()
 								) : null}
 							</div>
 							<div>
+								{/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
 								<TDInputTemplateBr
 									placeholder="Type GRT Date..."
 									type="date"
 									label="GRT Date"
 									name="b_grtDate"
-									formControlName={formik.values.b_grtDate}
+									// formControlName={formik.values.b_grtDate}
+									formControlName={userDetails?.transaction_date}
 									handleChange={formik.handleChange}
 									handleBlur={formik.handleBlur}
 									mode={1}

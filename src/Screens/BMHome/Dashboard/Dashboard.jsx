@@ -28,6 +28,7 @@ import { useNavigate } from "react-router"
 import { routePaths } from "../../../Assets/Data/Routes"
 import { CheckCircleOutlined, EyeOutlined } from "@ant-design/icons"
 import { Link } from "react-router-dom"
+import useCheckOpenCloseDate from "../../../Components/useCheckOpenCloseDate"
 
 const formatINR = (num) =>
 	new Intl.NumberFormat("en-IN", {
@@ -1477,74 +1478,81 @@ localStorage.clear()
 	}
 
 
-	const check_OpenDt_CloseDt = async () => {
-		// setLoading(true)
+	// const check_OpenDt_CloseDt = async () => {
+	// 	// setLoading(true)
 
-		const tokenValue = await getLocalStoreTokenDts(navigate);
+	// 	const tokenValue = await getLocalStoreTokenDts(navigate);
 
-		try {
-			// const creds = { branch_code: getBranchCodes()[0] }
+	// 	try {
+	// 		// const creds = { branch_code: getBranchCodes()[0] }
 
-			// const creds = { branch_code: getBranchCodes() }
-			const creds = { branch_code: userDetails?.brn_code }
+	// 		// const creds = { branch_code: getBranchCodes() }
+	// 		const creds = { branch_code: userDetails?.brn_code }
 
-			// return;
-			const res = await axios.post(`${url}/admin/fetch_brnwise_end_details`, creds, {
-			headers: {
-			Authorization: `${tokenValue?.token}`, // example header
-			"Content-Type": "application/json", // optional
-			},
-			})
+	// 		// return;
+	// 		const res = await axios.post(`${url}/admin/fetch_brnwise_end_details`, creds, {
+	// 		headers: {
+	// 		Authorization: `${tokenValue?.token}`, // example header
+	// 		"Content-Type": "application/json", // optional
+	// 		},
+	// 		})
 			
-			// console.log(res?.data?.suc, 'dataaaaaaaa', 'responseeeeeeeeeee');
+	// 		// console.log(res?.data?.suc, 'dataaaaaaaa', 'responseeeeeeeeeee');
 			
-			if(res?.data?.suc === 0){
+	// 		if(res?.data?.suc === 0){
 
-			navigate(routePaths.LANDING)
-			localStorage.clear()
-			Message('error', res?.data?.msg)
+	// 		navigate(routePaths.LANDING)
+	// 		localStorage.clear()
+	// 		Message('error', res?.data?.msg)
 
-			} else {
+	// 		} else {
 			
-			// if(userDetails?.brn_code === '100'){
+	// 		// if(userDetails?.brn_code === '100'){
 			
-			// } else {
-			console.log(res?.data.end_flag, 'yyyyyyyyyyyyyyyyyyyyyyyyyy___', creds);
+	// 		// } else {
+	// 		console.log(res?.data.end_flag, 'yyyyyyyyyyyyyyyyyyyyyyyyyy___', creds);
 
-			if (res?.data.end_flag === 'C') {
-			// alert("Closed date and opened date cannot be the same!");
-			localStorage.setItem("pendingApprove", 'yes')
-			setOpenDt_CloseDt(res?.data.end_flag)
-			}
-			// }
-			// console.log(res?.data, 'checkdateeeeeeeeeeeeeeeeeeeeeee', res?.data.end_flag);
+	// 		if (res?.data.end_flag === 'C') {
+	// 		// alert("Closed date and opened date cannot be the same!");
+	// 		localStorage.setItem("pendingApprove", 'yes')
+	// 		setOpenDt_CloseDt(res?.data.end_flag)
+	// 		}
+	// 		// }
+	// 		// console.log(res?.data, 'checkdateeeeeeeeeeeeeeeeeeeeeee', res?.data.end_flag);
 
-			// setDateOfOperation(res?.data?.data?.date_of_operation)
+	// 		// setDateOfOperation(res?.data?.data?.date_of_operation)
 
-			}
+	// 		}
 
 			
-		} catch (error) {
-		// navigate(routePaths.LANDING)
-		// localStorage.clear()
-		Message("error", "Some error occurred while fetching data!")
-		console.log("ERRR", error)
-		} finally {
-			// setLoading(false)
-		}
-	}
+	// 	} catch (error) {
+	// 	// navigate(routePaths.LANDING)
+	// 	// localStorage.clear()
+	// 	Message("error", "Some error occurred while fetching data!")
+	// 	console.log("ERRR", error)
+	// 	} finally {
+	// 		// setLoading(false)
+	// 	}
+	// }
+
+	const { checkOpenDtCloseDt, openDtCloseDt } = useCheckOpenCloseDate(userDetails)
+
+	// useEffect(() => {
+	// 	if (userDetails?.brn_code) {
+	// 		checkOpenDtCloseDt()
+	// 	}
+	// }, [userDetails?.brn_code])
 
 
 	useEffect(() => {
 		fetchBranches()
-		
-
 	}, [])
 
 	useEffect(() => {
 		if (branches.length) {
 			fetchDateOfOperation()
-			check_OpenDt_CloseDt()
+			// check_OpenDt_CloseDt()
+			checkOpenDtCloseDt()
 			if (+userDetails?.id === 1) {
 				fetchCOTotalGrtDetails(grtPeriod !== "Today" ? "Month" : "Today")
 				fetchActiveGroupsCO()
