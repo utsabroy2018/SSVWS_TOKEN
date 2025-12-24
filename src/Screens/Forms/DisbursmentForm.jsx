@@ -825,9 +825,8 @@ localStorage.clear()
 				})
 
 				setTransactionDetailsData({
-					b_tnxDate: res?.data?.loan_dt?.last_trn_dt
-						? formatDateToYYYYMMDD(new Date(res?.data?.loan_dt?.last_trn_dt))
-						: formatDateToYYYYMMDD(new Date()),
+					// b_tnxDate: res?.data?.loan_dt?.last_trn_dt ? formatDateToYYYYMMDD(new Date(res?.data?.loan_dt?.last_trn_dt)) : formatDateToYYYYMMDD(new Date()),
+					b_tnxDate: formatDateToYYYYMMDD(new Date(userDetails?.transaction_date)),
 					// b_tnxDate: formatDateToYYYYMMDD(new Date()),
 					b_bankName: res?.data?.loan_trans?.bank_name || "",
 					// b_bankName: banks?.bank_code || "",
@@ -889,9 +888,8 @@ localStorage.clear()
 						setTransactionDetailsData({
 							b_bankName: +resDisb?.data?.msg[0]?.code || 0,
 							b_remarks: resDisb?.data?.msg[0]?.particulars || "",
-							b_tnxDate: res?.data?.msg[0]?.last_trn_dt
-								? formatDateToYYYYMMDD(new Date(res?.data?.msg[0].last_trn_dt))
-								: formatDateToYYYYMMDD(new Date()),
+							// b_tnxDate: res?.data?.msg[0]?.last_trn_dt ? formatDateToYYYYMMDD(new Date(res?.data?.msg[0].last_trn_dt)) : formatDateToYYYYMMDD(new Date()),
+							b_tnxDate: formatDateToYYYYMMDD(new Date(userDetails?.transaction_date)),
 						})
 					}
 					})
@@ -1863,7 +1861,8 @@ localStorage.clear()
 											Required!
 										</span>
 									)}
-									{/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
+									{/* {JSON.stringify(userDetails?.transaction_date, null, 2)}
+									{JSON.stringify(transactionDetailsData.b_tnxDate, null, 2)} */}
 									<TDInputTemplateBr
 										placeholder="Transaction date..."
 										type="date"

@@ -186,7 +186,7 @@ function MonthOpenForm() {
 		Message('error', res?.data?.msg)
 
 		} else {
-			// console.log(res, 'gggggggggggggg');
+			
 			// setData(res?.data?.day_end_data_ho?.msg || [])
 			handleCheckUnapproveTransaction(res?.data?.day_end_data_ho?.msg)
 		}
@@ -231,6 +231,7 @@ function MonthOpenForm() {
 		}
 
 	useEffect(() => {
+		// console.log(data, 'datadatadatadatadatadata');
 		
 		setSelectedRowIndices([])
 		console.log(searchType2.length, 'searchType2');
@@ -555,9 +556,9 @@ const handleRevertBack = (openDate, brnCode) => {
 												</div> */}
 											</div>
 
- {/* {JSON.stringify(filteredData, null, 2)} */}
+ {/* {JSON.stringify(filteredData.reverse(), null, 2)} */}
 						<DynamicTailwindTable_OpenClose
-							data={filteredData}
+							data={filteredData.reverse()}
 							showCheckbox={true}
 							selectedRowIndices={selectedRowIndices}
 							onRowSelectionChange={onTableSelectionChange}
