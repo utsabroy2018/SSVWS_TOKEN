@@ -1142,6 +1142,7 @@ Authorization: `${tokenValue?.token}`, // example header
 							<DynamicTailwindTable
 								data={reportData}
 								pageSize={50}
+								columnTotal={[4, 5, 6, 7, 8, 9, 10, 11, 12]}
 								dateTimeExceptionCols={[0, 1]}
 								headersMap={portfolioReportHeaderBranchwise}
 									colRemove={selectedColumns ? md_columns.map(el => {

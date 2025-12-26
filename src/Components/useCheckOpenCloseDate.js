@@ -46,6 +46,9 @@ const useCheckOpenCloseDate = (userDetails) => {
 			if (res?.data?.end_flag === "C") {
 				localStorage.setItem("pendingApprove", "yes")
 				setOpenDtCloseDt(res?.data?.end_flag)
+			} else {
+				localStorage.setItem("pendingApprove", "no")
+				setOpenDtCloseDt(res?.data?.end_flag)
 			}
 		} catch (error) {
 			console.error("ERRR", error)

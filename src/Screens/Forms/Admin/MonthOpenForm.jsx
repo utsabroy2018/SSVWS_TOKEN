@@ -16,6 +16,7 @@ import { getLocalStoreTokenDts } from "../../../Components/getLocalforageTokenDt
 import Radiobtn from "../../../Components/Radiobtn"
 import DynamicTailwindTable_OpenClose from "../../../Components/Reports/DynamicTailwindTable_OpenClose"
 import TDInputTemplateBr from "../../../Components/TDInputTemplateBr"
+// import useCheckOpenCloseDate from "../../../Components/useCheckOpenCloseDate"
 
 const options1 = [
 	{
@@ -80,9 +81,9 @@ function MonthOpenForm() {
 		// console.log(array, 'arrayarrayarrayarray', payload__);
 		
 
-		const result = array
-		.map(item => item.branch_code)   // extract only branch_code
-		.sort((a, b) => b - a);          // sort descending
+		// const result = array
+		// .map(item => item.branch_code)   // extract only branch_code
+		// .sort((a, b) => b - a);          // sort descending
 
 		// console.log(result);
 		
@@ -100,7 +101,7 @@ function MonthOpenForm() {
 
 		const payload = {
 		'branch_dtls': array
-		.sort((a, b) => b.branch_code - a.branch_code)
+		// .sort((a, b) => b.branch_code - a.branch_code)
 		.map(item => ({
 		'branch_code': item.branch_code,
 		'closed_date': formatDateToYYYYMMDD(item.closed_date),
@@ -292,9 +293,11 @@ function MonthOpenForm() {
 	// 	handleCheckUnapproveTransaction(selectedData)
 	// }, [selectedRowIndices])
 
-	
+	// const { checkOpenDtCloseDt, openDtCloseDt } = useCheckOpenCloseDate(userDetails)
 
 	const handleUpdateForm = async () => {
+		console.log('submittttttttttt', 'testxxx');
+		// return
 		setLoading(true)
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -330,11 +333,11 @@ function MonthOpenForm() {
 
 			if(res?.data?.suc === 0){
 
-		navigate(routePaths.LANDING)
-		localStorage.clear()
-		Message('error', res?.data?.msg)
+			navigate(routePaths.LANDING)
+			localStorage.clear()
+			Message('error', res?.data?.msg)
 
-		} else {
+			} else {
 
 			// if (!socket) {
 			// console.warn("Socket not connected, attempting to reconnect...")
@@ -356,8 +359,11 @@ function MonthOpenForm() {
 			Message("success", "Day Open updated successfully")
 			handleFetchMonthOpen()
 
+			// checkOpenDtCloseDt()
+
 			setSelectedRowIndices([])
 			setTopAlertMessage("")
+
 
 		}
 
@@ -558,7 +564,7 @@ const handleRevertBack = (openDate, brnCode) => {
 
  {/* {JSON.stringify(filteredData.reverse(), null, 2)} */}
 						<DynamicTailwindTable_OpenClose
-							data={filteredData.reverse()}
+							data={filteredData}
 							showCheckbox={true}
 							selectedRowIndices={selectedRowIndices}
 							onRowSelectionChange={onTableSelectionChange}
