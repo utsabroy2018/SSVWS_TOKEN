@@ -16,7 +16,7 @@ const DynamicTailwindTable_OpenClose = ({
 	onRevertBack = () => {},
 	indexing = false,
 	bordered = true,
-	isFooterAvailable=true
+	isFooterAvailable
 }) => {
 	const [currentPage, setCurrentPage] = useState(1)
 
@@ -268,16 +268,18 @@ const DynamicTailwindTable_OpenClose = ({
 									))}
 									{row.disabled !== true &&(
 										<td className="px-6 py-3">
+											{/* {JSON.stringify(row?.branch_code != '100' , null, 2)} */}
 										{row.unapprove_flag === "Y" ? (
 											<span className="inline-flex items-center px-5 py-1.5 text-sm font-medium text-white border bg-[#DA4167] hover:bg-[#DA4167] disabled:border-slate-300 disabled:bg-slate-300 rounded-full transition duration-300">Pending</span>
 										) : (
-											<a
-									className="inline-flex items-center px-5 py-1.5 text-sm font-medium text-white border border-teal-500 bg-teal-500 hover:bg-green-600 hover:border-green-600 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-950 rounded-full transition duration-300"
-									onClick={() => onRevertBack(row.opened_date, row.branch_code)}
-									>
-										
-									Revert Back
-									</a>
+											
+										row?.branch_code != "100" && (
+										<a
+										className="inline-flex items-center px-5 py-1.5 text-sm font-medium text-white border border-teal-500 bg-teal-500 hover:bg-green-600 hover:border-green-600 rounded-full transition duration-300"
+										onClick={() => onRevertBack(row.opened_date, row.branch_code)} >
+										Revert
+										</a>
+										)
 										)}
 
 											

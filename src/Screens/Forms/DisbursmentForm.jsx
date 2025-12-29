@@ -1852,7 +1852,7 @@ localStorage.clear()
                     // disabled={disburseOrNot}
                   />
                 </div> */}
-								<div className="sm:col-span-4">
+								<div className="sm:col-span-4" style={{backgroundColor: "#FEF3C7", padding:5, borderRadius:5}}>
 									{!transactionDetailsData.b_tnxDate && (
 										<span
 											style={{ color: "red" }}

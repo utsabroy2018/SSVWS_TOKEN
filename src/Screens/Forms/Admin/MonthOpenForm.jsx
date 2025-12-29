@@ -490,6 +490,8 @@ const handleRevertBack = (openDate, brnCode) => {
     // OR 👉 Update a state
     // setSelectedBranch(branchCode)
 }
+
+const today = new Date().toISOString().split("T")[0];
 	
 
 	return (
@@ -576,15 +578,17 @@ const handleRevertBack = (openDate, brnCode) => {
 								closed_date: "Closed Upto",
 								opened_date: "Open Upto",
 							}}
+							isFooterAvailable={false}
 							dateTimeExceptionCols={[2]}
 							onRevertBack={handleRevertBack}
+
 						/>
 
 						{/* <div className="flex justify-center"> */}
 						{searchType2 === "C" && (
 							<div className="grid grid-cols-4 gap-5 mt-5 items-end">
 						<div>
-						<TDInputTemplateBr
+						{/* <TDInputTemplateBr
 						placeholder="Day Open"
 						type="date"
 						label="Day Open"
@@ -593,7 +597,19 @@ const handleRevertBack = (openDate, brnCode) => {
 						handleChange={(e) => setdayOpenFld(e.target.value)}
 						min={"1900-12-31"}
 						mode={1}
+						/> */}
+
+						<TDInputTemplateBr
+						placeholder="Day Open"
+						type="date"
+						label="Day Open"
+						name="dayopen"
+						formControlName={dayOpenFld}
+						handleChange={(e) => setdayOpenFld(e.target.value)}
+						min={today}
+						mode={1}
 						/>
+
 						</div>
 						<div>
 							<button

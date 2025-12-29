@@ -424,12 +424,15 @@ Authorization: `${tokenValue?.token}`, // example header
         spinning={loading}
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            {/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
-            <TDInputTemplateBr
-              placeholder="Date"
+          <div style={{backgroundColor: "#FEF3C7", padding:5, borderRadius:5}}>
+            
+            {/* {JSON.stringify(userDetails?.transaction_date, null, 2)}
+            {JSON.stringify(todayDate, null, 2)} */}
+            
+            {/* <TDInputTemplateBr
+              placeholder="Transaction Date"
               type="date"
-              label="Date"
+              label="Transaction Date"
               name="todayDate"
               formControlName={todayDate}
               handleChange={(e) => setTodayDate(e.target.value)}
@@ -444,7 +447,29 @@ Authorization: `${tokenValue?.token}`, // example header
               }}
               min={"1900-12-31"}
               mode={1}
+            /> */}
+
+          <TDInputTemplateBr
+              placeholder="Transaction Date"
+              type="date"
+              label="Transaction Date"
+              name="todayDate"
+              disabled={true}
+              formControlName={todayDate}
+              handleChange={(e) => setTodayDate(userDetails?.transaction_date)}
+              handleBlur={(e) => {
+                // console.log(e.target.value);
+                if(userDetails?.transaction_date){
+                  checkPreviousDisbursement(userDetails?.transaction_date);
+                } 
+                else{
+                  setHasBeforeUpnapproveTransDate(false);
+                }
+              }}
+              min={"1900-12-31"}
+              mode={1}
             />
+            
             	{
                 hasBeforeUpnapproveTransDate && <p className="text-red-500 text-xs mt-1 font-medium">
                   There are unapproved transactions before this date, Please approve them to proceed.

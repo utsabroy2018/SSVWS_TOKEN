@@ -26,7 +26,7 @@ function MonthOpen() {
 			<section className="dark:bg-[#001529] flex justify-center align-middle p-5">
 				<div className="px-1 py-5 w-4/5 min-h-screen rounded-3xl">
 					<div className="w-auto mx-14 my-4">
-						<FormHeader text="Month Open" mode={2} />
+						<FormHeader text="Day Open" mode={2} />
 					</div>
 					<Spin
 						indicator={<LoadingOutlined spin />}

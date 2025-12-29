@@ -144,6 +144,8 @@ const DynamicTailwindTable = ({
 		return value
 	}
 
+
+
 	return (
 		<>
 			<div
@@ -216,6 +218,7 @@ const DynamicTailwindTable = ({
 												bordered ? "border-r-slate-200 border text-justify" : ""
 											}`}
 										>
+											{/* {row[item.header]} ddd */}
 											{row[item.header] !== undefined
 												? formatCellValue(row[item.header], item.index)
 												: "---"}

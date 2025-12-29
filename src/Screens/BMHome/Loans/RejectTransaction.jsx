@@ -435,6 +435,7 @@ Authorization: `${tokenValue?.token}`, // example header
 										placeholder="Search by Group Code/Group Name"
 										value={searchKeywords}
 										onChange={handleSearchChange}
+										
 									/>
 									<button
 										type="button"
@@ -571,7 +572,7 @@ Authorization: `${tokenValue?.token}`, // example header
 
 								{/* Dynamic Table */}
 								<div className="mt-5 p-5 bg-gray-50 rounded-lg shadow-lg">
-									
+									{JSON.stringify(data[0] , null, 2)}
 									<DynamicTailwindTable
 										data={data}
 										pageSize={50}

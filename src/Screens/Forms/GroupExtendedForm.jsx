@@ -742,10 +742,15 @@ localStorage.clear()
 			district: branch?.split(",")[0],
 			block: block,
 			co_id: CEOData,
+			transaction_date: userDetails?.transaction_date,
 			grp_memberdtls: COMemList_Store,
 		}
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
+
+		// console.log(creds, 'credscredscredscredscredscreds');
+		
+
 
 		await axios
 			.post(`${url}/admin/edit_group_web`, creds, {
@@ -763,6 +768,9 @@ localStorage.clear()
 				setLoading(false)
 
 				Message("success", "Updated successfully.")
+
+				// console.log(res?.data, 'credscredscredscredscredscreds');
+
 				console.log("IIIIIIIIIIIIIIIIIIIIIII", res?.data)
 				if (params.id == 0) {
 					setFlag(5)
@@ -867,6 +875,9 @@ localStorage.clear()
 									: "grid gap-4 sm:grid-cols-2 sm:gap-6 w-full"
 							}
 						>
+
+							{/* {JSON.stringify(userDetails?.transaction_date, null, 2)} */}
+
 							{params?.id > 0 && (
 								<div className="sm:col-span-2">
 									<TDInputTemplateBr
