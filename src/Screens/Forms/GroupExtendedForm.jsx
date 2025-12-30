@@ -771,7 +771,7 @@ localStorage.clear()
 
 				// console.log(res?.data, 'credscredscredscredscredscreds');
 
-				console.log("IIIIIIIIIIIIIIIIIIIIIII", res?.data)
+				// console.log("IIIIIIIIIIIIIIIIIIIIIII", res?.data)
 				if (params.id == 0) {
 					setFlag(5)
 					setGroupCode(res?.data?.group_code)

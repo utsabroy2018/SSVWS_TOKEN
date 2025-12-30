@@ -3,13 +3,15 @@ import Sidebar from "../../../Components/Sidebar"
 import axios from "axios"
 import { url } from "../../../Address/BaseUrl"
 import { Message } from "../../../Components/Message"
-import { Spin, Popconfirm } from "antd"
+import { Spin, Popconfirm, Tooltip } from "antd"
 import Select from "react-select"
 import {
 	LoadingOutlined,
 	CheckCircleOutlined,
 	SaveOutlined,
 	SearchOutlined,
+	FileExcelOutlined,
+	PrinterOutlined,
 } from "@ant-design/icons"
 import debounce from "lodash.debounce"
 import DynamicTailwindTable from "../../../Components/Reports/DynamicTailwindTable"
@@ -20,6 +22,9 @@ import { formatDateToYYYYMMDD } from "../../../Utils/formateDate"
 import { getLocalStoreTokenDts } from "../../../Components/getLocalforageTokenDts"
 import { routePaths } from "../../../Assets/Data/Routes"
 import { useNavigate } from "react-router"
+import { printTableReport } from "../../../Utils/printTableReport"
+import { useCtrlP } from "../../../Hooks/useCtrlP"
+import { exportToExcel } from "../../../Utils/exportToExcel"
 
 const RejectTransaction = () => {
 	const userDetails = JSON.parse(localStorage.getItem("user_details")) || {}
@@ -37,6 +42,9 @@ const RejectTransaction = () => {
 	const [branches, setBranches] = useState([])
 	const [rej_res, setRejRes] = useState("")
 	const navigate = useNavigate()
+
+	const [md_columns, setColumns] = useState([]);
+	const [selectedColumns, setSelectedColumns] = useState(null);
 	
 
 	const options2 = [
@@ -184,6 +192,7 @@ Authorization: `${tokenValue?.token}`, // example header
 				localStorage.clear()
 				} else {
 					setData(res.data?.search_reject_data?.msg || [])
+					populateColumns(res.data?.search_reject_data?.msg, rejectTransFieldNames);
 				}
 				
 				// if (res?.data?.search_reject_data?.suc > 0)
@@ -387,6 +396,36 @@ Authorization: `${tokenValue?.token}`, // example header
 		}
 	}
 
+	const dataToExport = data;
+
+	const headersToExport = searchType === "S" ? rejectTransFieldNames : '';
+
+	const fetchSearchTypeName = (searchType) => {
+		if (searchType === "S") {
+			return "Rejected Transaction"
+		}
+	}
+
+	const fileName = `Loan_${fetchSearchTypeName(
+		searchType
+	)}_${new Date().toLocaleString("en-GB")}.xlsx`
+
+		const handlePrint = useCallback(() => {
+			printTableReport(
+				dataToExport,
+				headersToExport,
+				fileName?.split(",")[0],
+				[0, 2]
+			)
+		}, [dataToExport, headersToExport, fileName, printTableReport])
+	
+		useCtrlP(handlePrint)
+		const populateColumns = (main_dt,headerExport) =>{
+					const columnToBeShown = Object.keys(main_dt[0]).map((key, index) => ({ header:headerExport[key], index }));
+					setColumns(columnToBeShown);
+					setSelectedColumns(columnToBeShown.map(el => el.index));
+		}
+
 	return (
 		<div className="flex">
 			<Sidebar mode={2} />
@@ -398,6 +437,7 @@ Authorization: `${tokenValue?.token}`, // example header
 				>
 					<main className="px-4 my-10 mx-32">
 						{/* Search Section */}
+						
 						<Radiobtn
 							data={options2}
 							val={searchType}
@@ -572,7 +612,7 @@ Authorization: `${tokenValue?.token}`, // example header
 
 								{/* Dynamic Table */}
 								<div className="mt-5 p-5 bg-gray-50 rounded-lg shadow-lg">
-									{JSON.stringify(data[0] , null, 2)}
+									{/* {JSON.stringify(data[0] , null, 2)} */}
 									<DynamicTailwindTable
 										data={data}
 										pageSize={50}
@@ -586,8 +626,112 @@ Authorization: `${tokenValue?.token}`, // example header
 										colRemove={[3, 6, 10, 13, 16, 19, 22]}
 										columnTotal={[8]}
 									/>
+
+								{searchType === "S" &&(
+								<>
+								{data.length !== 0 && (
+								<div className="flex gap-4">
+								<Tooltip title="Export to Excel">
+								<button
+								onClick={() =>{
+								// console.log(dataToExport, 'hhhhh', headersToExport);
+								// console.log(headersToExport);
+								let exportedDT = [...dataToExport];
+								// const tot_debit =  exportedDT.reduce( ( sum , cur ) => sum + Number(cur.debit) , 0);
+								const tot_credit= exportedDT.reduce((sum,cur) => sum + Number(cur.credit) ,0)
+								exportedDT.push({
+								payment_date:"TOTAL",
+								// debit: tot_debit,
+								credit: tot_credit,
+								})
+								const dt = md_columns.filter(el => selectedColumns.includes(el.index));
+								let header_export = {};
+								Object.keys(headersToExport).forEach(key =>{
+								if(dt.filter(ele => ele.header == headersToExport[key]).length > 0){
+								header_export = {
+								...header_export,
+								[key]:headersToExport[key]
+								}
+								}
+								});
+								exportToExcel(
+								exportedDT,
+								header_export,
+								fileName,
+								[0, 2]
+								)
+								}}
+								className="mt-5 justify-center items-center rounded-full text-green-900"
+								>
+								<FileExcelOutlined
+								style={{
+								fontSize: 30,
+								}}
+								/>
+								</button>
+								</Tooltip>
+
+								<Tooltip title="Print">
+								<button
+								onClick={() =>{
+								// printTableLoanTransactions(
+								// 	reportData,
+								// 	"Loan Transaction",
+								// 	searchType,
+								// 	searchType2,
+								// 	metadataDtls,
+								// 	fromDate,
+								// 	toDate
+								// )
+								let exportedDT = [...dataToExport];
+								// const tot_debit =  exportedDT.reduce( ( sum , cur ) => sum + Number(cur.debit) , 0);
+								const tot_credit= exportedDT.reduce((sum,cur) => sum + Number(cur.credit) ,0)
+								// const tot_prn_recov= exportedDT.reduce((sum,cur) => sum + Number(cur.prn_recov) ,0)
+								// const tot_intt_recov= exportedDT.reduce((sum,cur) => sum + Number(cur.intt_recov) ,0)
+								// const tot_curr_balance= exportedDT.reduce((sum,cur) => sum + Number(cur.curr_balance) ,0)
+								exportedDT.push({
+								// debit: tot_debit,
+								credit: tot_credit,
+								// prn_recov: tot_prn_recov,
+								// intt_recov: tot_intt_recov,
+								// curr_balance:tot_curr_balance
+								})
+								const dt = md_columns.filter(el => selectedColumns.includes(el.index));
+								let header_export = {};
+								Object.keys(headersToExport).forEach(key =>{
+								if(dt.filter(ele => ele.header == headersToExport[key]).length > 0){
+								header_export = {
+								...header_export,
+								[key]:headersToExport[key]
+								}
+								}
+								});
+								printTableReport(
+								exportedDT,
+								header_export,
+								fileName?.split(",")[0],
+								[0, 2]
+								)
+								}}
+								className="mt-5 justify-center items-center rounded-full text-pink-600"
+								>
+								<PrinterOutlined
+								style={{
+								fontSize: 30,
+								}}
+								/>
+								</button>
+								</Tooltip>
+								</div>
+								)}
+								</>
+								)}
 									
 								</div>
+
+								
+
+
 								{(data?.length > 0 && userDetails?.id != 3) &&
 									selectedRowIndices?.length !== 0 &&
 									searchType == "R" && (
