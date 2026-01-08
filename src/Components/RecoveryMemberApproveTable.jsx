@@ -145,11 +145,14 @@ function RecoveryMemberApproveTable({
 
 			// const groupCodes = selectedRows.map((item) => item.group_code);
 			const group_Data = rows.map((item) => {
+				// console.log(item, 'dddddddddddddddddddddddd');
 				return {
 					payment_date: item?.transaction_date,
 					payment_id: item?.payment_id,
 					loan_id: item?.loan_id,
-					outstanding: item?.outstanding
+					outstanding: item?.outstanding,
+					group_code: item?.group_code,
+					branch_code: item?.branch_code,
 				}
 			})
 
@@ -161,7 +164,7 @@ function RecoveryMemberApproveTable({
 				}
 			})
 
-			console.log(dat, "check before approve dat", e.value)
+			// console.log(rows, "check before approve dat", group_Data)
 
 			setCachedPaymentId(group_Data)
 			// setRejectCachedPaymentId(reject_group_Data)
@@ -377,6 +380,9 @@ localStorage.clear()
 			approved_by: userDetails?.emp_id,
 			membdt: cachedPaymentId,
 		}
+		// console.log(cachedPaymentId, 'cachedPaymentId', creds);
+		
+		// return
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -564,7 +570,7 @@ Authorization: `${tokenValue?.token}`, // example header
 				</motion.section>
 
 				)} */}
-
+					{/* {JSON.stringify(getloanAppData, 2)} */}
 				<DataTable
 					value={getloanAppData?.map((item, i) => [{ ...item, id: i }]).flat()}
 					// expandedRows={expandedRows}
@@ -725,7 +731,7 @@ Authorization: `${tokenValue?.token}`, // example header
 				visible={visible}
 				onPressYes={async () => {
 					// editGroup()
-					console.log(cachedPaymentId, "cachedPaymentId ggg approve yes")
+					// console.log(cachedPaymentId, "cachedPaymentId ggg approve yes")
 					await approveRecoveryTransaction(cachedPaymentId)
 						.then(() => {
 							// fetchLoanApplications("R")
@@ -736,7 +742,7 @@ Authorization: `${tokenValue?.token}`, // example header
 					setVisible(!visible)
 				}}
 				onPressNo={() => {
-					console.log(cachedPaymentId, "cachedPaymentId ggg approve no")
+					// console.log(cachedPaymentId, "cachedPaymentId ggg approve no")
 					setVisible(!visible)
 				}}
 			/>

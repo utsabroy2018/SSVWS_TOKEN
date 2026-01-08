@@ -9,8 +9,10 @@ import { url } from '../../../Address/BaseUrl';
 import Select from "react-select"
 import {
 groupReportGroupWiseHeader,
+    groupReportGroupWiseHeader_No_CloseDate,
 memberwiseDemandReportHeader,
-memberwiseReportHeader
+memberwiseReportHeader,
+memberwiseReportHeader_No_CloseDate
 } from "../../../Utils/Reports/headerMap"
 import DynamicTailwindTable from '../../../Components/Reports/DynamicTailwindTable'
 import { Message } from '../../../Components/Message'
@@ -55,6 +57,7 @@ const GroupReport = () => {
     const [searchType, setSearchType] = useState(() => "G");
     const [isActiveOrInActive, setIsActiveOrInActive] = useState(() => "A");
     const [fromDate, setFromDate] = useState();
+    const [toDate, setToDate] = useState();
 	const userDetails = JSON.parse(localStorage.getItem("user_details")) || "";
     const [reportData, setReportData] = useState(() => [])
     const [isLoading,setLoading] = useState(false);
@@ -68,9 +71,10 @@ const GroupReport = () => {
     
     const dataToExport = reportData
     const onPressOnSearchButton = async () =>{
-
+        
                 try{
-                    if(fromDate){
+                    if(fromDate && toDate){
+                    
                         setLoading(true);
                         const branchCodes = selectedOptions?.map((item, i) => item?.value);
                         const coCodes = selectedCOs?.map((item, i) => item?.value)
@@ -87,6 +91,7 @@ const GroupReport = () => {
                                         ? allCos
                                         : [selectedCO]
                                     : coCodes,
+                                to_date: toDate,
                             };
                         }
                         else{
@@ -94,17 +99,21 @@ const GroupReport = () => {
                                 from_date:fromDate,
                                 [searchType == 'G' ? 'group_flag' : "member_flag"]:isActiveOrInActive,
                                 branch_code:branchCodes?.length === 0 ? [userDetails?.brn_code] : (dropdownOptions.length === branchCodes.length ? 100 : branchCodes),
+                                to_date: toDate,
                             };
                         }
 
+                        // console.log(payLoad, 'asdasdasdsadasd', fromDate, toDate);
+                        
+
                         const tokenValue = await getLocalStoreTokenDts(navigate);
 
-                        axios.post(`${url}/${apiName}`,payLoad, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-}).then(res =>{
+                        axios.post(`${url}/${apiName}`, payLoad, {
+                        headers: {
+                        Authorization: `${tokenValue?.token}`, // example header
+                        "Content-Type": "application/json", // optional
+                        },
+                        }).then(res =>{
                                 setLoading(false);
 
                                 if(res?.data?.suc === 0){
@@ -124,6 +133,7 @@ Authorization: `${tokenValue?.token}`, // example header
                                     }
                                     else{
                                         Message('warning',"No data found");
+                                        setReportData([])
                                     }
                                 
                                 }
@@ -221,11 +231,11 @@ Authorization: `${tokenValue?.token}`, // example header
 
             axios
                 .post(`${url}/fetch_brn_co`, creds, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-})
+                headers: {
+                Authorization: `${tokenValue?.token}`, // example header
+                "Content-Type": "application/json", // optional
+                },
+                })
                 .then((res) => {
                     if(res?.data?.suc === 0){
 // Message('error', res?.data?.msg)
@@ -285,6 +295,21 @@ localStorage.clear()
 			setSelectedOptions(selected)
 		}
 	}
+
+
+    const headersMap = React.useMemo(() => {
+    if (searchType === "M") {
+        return isActiveOrInActive === "I"
+            ? memberwiseReportHeader
+            : memberwiseReportHeader_No_CloseDate
+    }
+
+    return isActiveOrInActive === "I"
+        ? groupReportGroupWiseHeader
+        : groupReportGroupWiseHeader_No_CloseDate
+    }, [searchType, isActiveOrInActive])
+
+
     return (
         <div>
             <Sidebar mode={2} />
@@ -450,7 +475,7 @@ localStorage.clear()
                                                 </div>
                                             ) : (
                                                 searchType === "C" && (
-                                                    <div>
+                                                    <div className="col-span-12 mx-auto w-[100%]">
                                                         <TDInputTemplateBr
                                                             placeholder="Select CO..."
                                                             type="text"
@@ -473,23 +498,44 @@ localStorage.clear()
                         
                          </div>   
                         <div className='grid grid-cols-12 gap-3'>
-                            <div className='col-span-5'>
+                            <div className='col-span-4'>
                                 <TDInputTemplateBr
                                     placeholder="From Date"
                                     type="date"
                                     label="From Date"
                                     name="fromDate"
                                     formControlName={fromDate}
-                                    handleChange={(e) => setFromDate(e.target.value)}
+                                    // handleChange={(e) => setFromDate(e.target.value)}
+                                    handleChange={(e) => {
+                                        const value = e.target.value
+                                        setFromDate(value)
+
+                                        // Reset To Date if it's less than new From Date
+                                        if (toDate && toDate < value) {
+                                            setToDate("")
+                                        }
+                                    }}
                                     min={"1900-12-31"}
                                     mode={1}
                                 />
                             </div>
-                            <div className='col-span-12 md:col-span-6 place-content-end'>
+
+                            <div className='col-span-4'>
+                                <TDInputTemplateBr
+                                    placeholder="To Date"
+                                    type="date"
+                                    label="To Date"
+                                    name="toDate"
+                                    formControlName={toDate}
+                                    handleChange={(e) => setToDate(e.target.value)}
+                                    min={fromDate || "1900-12-31"}   // 🔒 KEY LINE
+                                    mode={1}
+                                />
+                            </div>
+                            <div className='col-span-12 md:col-span-4 place-content-end'>
                             <button
                                     className={`inline-flex items-center px-4 py-2 mt-0 ml-0 sm:mt-0 text-sm font-small text-center text-white border hover:border-green-600 border-teal-500 bg-teal-500 transition ease-in-out hover:bg-green-600 duration-300 rounded-full  dark:focus:ring-primary-900`}
                                     onClick={() => {
-                                        console.log('asdasdasdsadasd');
                                         onPressOnSearchButton();
                                     }}
                                 >
@@ -499,12 +545,14 @@ localStorage.clear()
                         </div>    
 
                         <>
+                        {/* {JSON.stringify(isActiveOrInActive, 2)}  */}
                             {reportData.length > 0 && <DynamicTailwindTableGroup
                                 data={reportData}
                                 pageSize={50}
                                 columnTotal={[]}
                                 // dateTimeExceptionCols={[0, 1, 20, 22, 27]}
-                                headersMap={searchType == 'M' ? memberwiseReportHeader : groupReportGroupWiseHeader}
+                                // headersMap={searchType == 'M' ? memberwiseReportHeader : groupReportGroupWiseHeader}
+                                headersMap={headersMap}
                                 colRemove={[]}
                                 isFooterAvailable={false}
                             />}
@@ -517,7 +565,8 @@ localStorage.clear()
 									onClick={() =>{
 										exportToExcel(
 											dataToExport,
-                                            groupReportGroupWiseHeader,
+                                            // groupReportGroupWiseHeader,
+                                            isActiveOrInActive === "I" ? groupReportGroupWiseHeader : groupReportGroupWiseHeader_No_CloseDate,
 											fileName,
 											[0, 2]
 										)
