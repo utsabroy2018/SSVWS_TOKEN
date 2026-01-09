@@ -68,6 +68,18 @@ const options2 = [
     },
 ]
 
+	// Branchwise And Divisionwise options
+	const brnchwis_divwise = [
+	{
+		label: "Branchwise",
+		value: "B",
+	},
+	{
+		label: "Divisionwise",
+		value: "D",
+	},
+]
+
 function PreviousLoanTransactions() {
     const [selectedColumns, setSelectedColumns] = useState(null);
     const [md_columns, setColumns] = useState([]);
@@ -97,6 +109,9 @@ function PreviousLoanTransactions() {
             : userDetails?.branch_name
     )
     const navigate = useNavigate()
+
+    // Branchwise And Divisionwise options
+    const [searchBrnchDiv, setSearchBrnchDiv] = useState(() => "B")
             
 
     const onChange = (e) => {
@@ -108,6 +123,16 @@ function PreviousLoanTransactions() {
         console.log("radio1 checked", e)
         setSearchType2(e)
     }
+
+    // Branchwise And Divisionwise options
+	const onChange3BrnDiv = (e) => {
+	// RESET branch selection
+	setSelectedOptions([])
+	// setSelectedOptionsCondition('no-data')
+
+	setSearchBrnchDiv(e)
+	getBranches(e)
+	}
 
     const handleFetchTxnReportGroupwise = async () => {
         setLoading(true)
@@ -448,8 +473,21 @@ Authorization: `${tokenValue?.token}`, // example header
         setLoading(false)
     }
 
-    const getBranches = async () => {
+    const getBranches = async (para) => {
+        setBranches([]);
         setLoading(true)
+
+        // Branchwise And Divisionwise options
+		var apiUrl = ''
+
+		if(para === 'B'){
+			apiUrl = 'fetch_brnname_based_usertype'
+		}
+
+		if(para === 'D'){
+			apiUrl = 'fetch_divitionwise_branch'
+		}
+
         const creds = {
             emp_id: userDetails?.emp_id,
             user_type: userDetails?.id,
@@ -457,7 +495,7 @@ Authorization: `${tokenValue?.token}`, // example header
 
         const tokenValue = await getLocalStoreTokenDts(navigate);
 
-        axios.post(`${url}/fetch_brnname_based_usertype`, creds, {
+        axios.post(`${url}/${apiUrl}`, para === 'B' ? creds : {}, {
 		headers: {
 		Authorization: `${tokenValue?.token}`, // example header
 		"Content-Type": "application/json", // optional
@@ -481,9 +519,11 @@ Authorization: `${tokenValue?.token}`, // example header
         setLoading(false)
     }
 
-    useEffect(() => {
-        getBranches()
-    }, [])
+    // Branchwise And Divisionwise options
+	useEffect(() => {
+		getBranches(searchBrnchDiv) 
+	}, [])
+
 
     const searchData = async () => {
         if (searchType2 === "G" && fromDate && toDate) {
@@ -584,23 +624,77 @@ Authorization: `${tokenValue?.token}`, // example header
     // 	return buf
     // }
 
-    const dropdownOptions = branches?.map((branch) => ({
-        value: branch.branch_assign_id,
-        label: `${branch.branch_name} - ${branch.branch_assign_id}`,
-    }))
+    // const dropdownOptions = branches?.map((branch) => ({
+    //     value: branch.branch_assign_id,
+    //     label: `${branch.branch_name} - ${branch.branch_assign_id}`,
+    // }))
 
-    const displayedOptions =
-        selectedOptions.length === dropdownOptions.length
-            ? [{ value: "all", label: "All" }]
-            : selectedOptions
+    // Branchwise And Divisionwise options
+	const dropdownOptions = branches?.map((item) => {
+		// console.log(item, 'selectedselectedselected', 'item');
+	if (searchBrnchDiv === "B") {
+		// Branchwise
+		return {
+			value: item.branch_assign_id,
+			label: `${item.branch_name} - ${item.branch_assign_id}`,
+		}
+	}
+
+	if (searchBrnchDiv === "D") {
+		// Divisionwise
+		return {
+			value: item.branch_code,
+			label: `${item.division}`,
+		}
+	}
+
+	return null
+	}).filter(Boolean);
+
+    // Branchwise And Divisionwise options
+    useEffect(() => {
+    setFromDate('')
+    setToDate('')
+
+    setReportData([])
+    setSelectedOptions([])
+    // setSelectedOptionsCondition("no-data")
+    }, [searchBrnchDiv])
+
+    // const displayedOptions =
+    //     selectedOptions.length === dropdownOptions.length
+    //         ? [{ value: "all", label: "All" }]
+    //         : selectedOptions
+
+    const displayedOptions = selectedOptions.length === dropdownOptions.length ? selectedOptions : selectedOptions;
+
+    // const handleMultiSelectChange = (selected) => {
+    //     if (selected.some((option) => option.value === "all")) {
+    //         setSelectedOptions(dropdownOptions)
+    //     } else {
+    //         setSelectedOptions(selected)
+    //     }
+    // }
 
     const handleMultiSelectChange = (selected) => {
-        if (selected.some((option) => option.value === "all")) {
-            setSelectedOptions(dropdownOptions)
-        } else {
-            setSelectedOptions(selected)
-        }
-    }
+		
+	// Normalize to array
+	const selectedArray = Array.isArray(selected)
+	? selected
+	: selected
+	? [selected]
+	: []
+	// console.log(selected, 'selectedselectedselected', selectedArray, 'outside');
+	setSelectedOptions(selectedArray)
+
+	if (selectedArray.length > 1) {
+	// setSelectedOptionsCondition("all")
+	} else if (selectedArray.length === 1) {
+	// setSelectedOptionsCondition("single")
+	} else {
+	// setSelectedOptionsCondition("no-data")
+	}
+	}
 
     const dropdownCOs = cos?.map((branch) => ({
         value: branch.co_id,
@@ -662,6 +756,20 @@ Authorization: `${tokenValue?.token}`, // example header
                         from {fromDate} to {toDate}
                     </div>
 
+                    <div className="mb-0 flex justify-start gap-5 items-center">
+                    <div>
+                    <Radiobtn
+                    data={brnchwis_divwise}
+                    val={searchBrnchDiv}
+                    onChangeVal={(value) => {
+                    onChange3BrnDiv(value)
+                    }}
+                    />
+                    </div>
+                    {/* {JSON.stringify(branches, 2)} */}
+
+                    </div>
+
                     <div className="mb-2 flex justify-start gap-5 items-center">
                         <div>
                             <Radiobtn
@@ -689,11 +797,23 @@ Authorization: `${tokenValue?.token}`, // example header
                         userDetails?.brn_code == 100 && (
                             <div className="w-[100%]">
                                 <Select
-                                    options={[{ value: "all", label: "All" }, ...dropdownOptions]}
-                                    isMulti
-                                    value={displayedOptions}
+                                    // options={[{ value: "all", label: "All" }, ...dropdownOptions]}
+                                    // isMulti
+                                    // value={displayedOptions}
+                                    options={[...dropdownOptions]}
+									isMulti={searchBrnchDiv === "B"}
+									value={
+									searchBrnchDiv === "B"
+										? displayedOptions
+										: displayedOptions?.[0] || null
+									}
                                     onChange={handleMultiSelectChange}
-                                    placeholder="Select branches..."
+                                    // placeholder="Select branches..."
+                                    placeholder={
+										searchBrnchDiv === "B"
+										? "Select branches..."
+										: "Select division..."
+									}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     styles={{
@@ -911,7 +1031,7 @@ Authorization: `${tokenValue?.token}`, // example header
                             <DynamicTailwindTable
                                 data={reportData}
                                 pageSize={50}
-                                columnTotal={[16,17, 18, 19,20]}
+                                columnTotal={[18, 19, 20,21]}
                                 // colRemove={[13, 14]}
                                 headersMap={txnMembHeader}
                                 dateTimeExceptionCols={[0]}
@@ -931,7 +1051,7 @@ Authorization: `${tokenValue?.token}`, // example header
                             <DynamicTailwindTable
                                 data={reportData}
                                 pageSize={50}
-                                columnTotal={[13, 14, 15,16]}
+                                columnTotal={[15, 16, 17,18]}
                                 dateTimeExceptionCols={[0]}
                                 headersMap={txnGrpHeaderForPreviousLoanTrxns}
                                 colRemove={selectedColumns ? md_columns.map(el => {
@@ -950,7 +1070,7 @@ Authorization: `${tokenValue?.token}`, // example header
                             <DynamicTailwindTable
                                 data={reportData}
                                 pageSize={50}
-                                columnTotal={[9,10,11,12,13]}
+                                columnTotal={[10,11,12,13,14]}
                                 dateTimeExceptionCols={[0]}
                                 headersMap={txnFundHeaderforPreviousLoanTrxns}
                                 colRemove={selectedColumns ? md_columns.map(el => {
@@ -969,7 +1089,7 @@ Authorization: `${tokenValue?.token}`, // example header
                             <DynamicTailwindTable
                                 data={reportData}
                                 pageSize={50}
-                                columnTotal={[13,14,15,16,17]}
+                                columnTotal={[15,16,17,18]}
                                 dateTimeExceptionCols={[0]}
                                 headersMap={txnCoHeaderForPreviousLoanTrxns}
                                 colRemove={selectedColumns ? md_columns.map(el => {
@@ -988,7 +1108,7 @@ Authorization: `${tokenValue?.token}`, // example header
                             <DynamicTailwindTable
                                 data={reportData}
                                 pageSize={50}
-                                columnTotal={[2,3, 4,5,6,7]}
+                                columnTotal={[3,4, 5,6,7,8]}
                                 headersMap={branchwiseTxnReportHeader}
                                 colRemove={selectedColumns ? md_columns.map(el => {
                                       if(!selectedColumns.includes(el.index)){

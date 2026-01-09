@@ -89,7 +89,7 @@ function MenusBr({ theme, data, data_ApprovPending}) {
 	const interval = setInterval(() => {
 	const pendingApprove = localStorage.getItem("pendingApprove")
 	// if (pendingApprove !== getMenuShow) {
-	console.log(getMenuShow, 'getMenuShowgetMenuShow', localStorage.getItem("pendingApprove") == 'yes');
+	// console.log(getMenuShow, 'getMenuShowgetMenuShow', localStorage.getItem("pendingApprove") == 'yes');
 	if (pendingApprove === 'yes') {
 	setMenuShow(pendingApprove)
 	} 

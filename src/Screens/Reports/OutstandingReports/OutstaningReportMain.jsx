@@ -71,6 +71,18 @@ const Fortnight = [
 	}
 	]
 
+// Branchwise And Divisionwise options
+const brnchwis_divwise = [
+	{
+		label: "Branchwise",
+		value: "B",
+	},
+	{
+		label: "Divisionwise",
+		value: "D",
+	},
+]
+
 function OutstaningReportMain() {
 	const [selectedColumns, setSelectedColumns] = useState(null);
 	const [md_columns, setColumns] = useState([]);
@@ -91,12 +103,26 @@ function OutstaningReportMain() {
 	const [selectedCOs, setSelectedCOs] = useState([])
 	const [procedureSuccessFlag, setProcedureSuccessFlag] = useState("0")
 	const [conditionState, setConditionState] = useState("current")
+
+	// Branchwise And Divisionwise options
+	const [searchBrnchDiv, setSearchBrnchDiv] = useState(() => "B")
+
 	const navigate = useNavigate()
 	
 
 	const onChange = (e) => {
 		console.log("radio1 checked", e)
 		setSearchType(e)
+	}
+
+	// Branchwise And Divisionwise options
+	const onChange3BrnDiv = (e) => {
+	// RESET branch selection
+	setSelectedOptions([])
+	// setSelectedOptionsCondition('no-data')
+
+	setSearchBrnchDiv(e)
+	getBranches(e)
 	}
 
 	const handleFetchReportOutstandingMemberwise = async () => {
@@ -706,8 +732,22 @@ localStorage.clear()
 		setLoading(false)
 	}
 
-	const getBranches = async () => {
+	const getBranches = async (para) => {
+		setBranches([]);
+
 		setLoading(true)
+
+		// Branchwise And Divisionwise options
+		var apiUrl = ''
+
+		if(para === 'B'){
+			apiUrl = 'fetch_branch_name_based_usertype'
+		}
+
+		if(para === 'D'){
+			apiUrl = 'fetch_divitionwise_branch'
+		}
+
 		const creds = {
 			emp_id: userDetails?.emp_id,
 			user_type: userDetails?.id,
@@ -716,21 +756,21 @@ localStorage.clear()
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
 		axios
-			.post(`${url}/fetch_branch_name_based_usertype`, creds, {
-headers: {
-Authorization: `${tokenValue?.token}`, // example header
-"Content-Type": "application/json", // optional
-},
-})
+			.post(`${url}/${apiUrl}`, para === 'B' ? creds : {}, {
+			headers: {
+			Authorization: `${tokenValue?.token}`, // example header
+			"Content-Type": "application/json", // optional
+			},
+			})
 			.then((res) => {
 				
 				if(res?.data?.suc === 0){
-// Message('error', res?.data?.msg)
-navigate(routePaths.LANDING)
-localStorage.clear()
-} else {
-				setBranches(res?.data?.msg)
-}
+				// Message('error', res?.data?.msg)
+				navigate(routePaths.LANDING)
+				localStorage.clear()
+				} else {
+								setBranches(res?.data?.msg)
+				}
 
 			})
 			.catch((err) => {
@@ -740,8 +780,9 @@ localStorage.clear()
 		setLoading(false)
 	}
 
+	// Branchwise And Divisionwise options
 	useEffect(() => {
-		getBranches()
+		getBranches(searchBrnchDiv) 
 	}, [])
 
 
@@ -966,34 +1007,88 @@ localStorage.clear()
 		searchType
 	)}_${new Date().toLocaleString("en-GB")}.xlsx`
 
-	const dropdownOptions = branches?.map((branch) => ({
-		value: branch.branch_assign_id,
-		label: `${branch.branch_name} - ${branch.branch_assign_id}`,
-	}))
+	// const dropdownOptions = branches?.map((branch) => ({
+	// 	value: branch.branch_assign_id,
+	// 	label: `${branch.branch_name} - ${branch.branch_assign_id}`,
+	// }))
+
+	// Branchwise And Divisionwise options
+	const dropdownOptions = branches?.map((item) => {
+		// console.log(item, 'selectedselectedselected', 'item');
+	if (searchBrnchDiv === "B") {
+		// Branchwise
+		return {
+			value: item.branch_assign_id,
+			label: `${item.branch_name} - ${item.branch_assign_id}`,
+		}
+	}
+
+	if (searchBrnchDiv === "D") {
+		// Divisionwise
+		return {
+			value: item.branch_code,
+			label: `${item.division}`,
+		}
+	}
+
+	return null
+	}).filter(Boolean)
+
+	// Branchwise And Divisionwise options
+	useEffect(() => {
+	setFromDate('')
+	setToDate('')
+
+	setReportData([])
+	setSelectedOptions([])
+	// setSelectedOptionsCondition("no-data")
+	}, [searchBrnchDiv])
 
 	// const displayedOptions = selectedOptions
 
-	const displayedOptions =
-		selectedOptions.length === dropdownOptions.length
-			? [{ value: "all", label: "All" }]
-			: selectedOptions
+	// const displayedOptions =
+	// 	selectedOptions.length === dropdownOptions.length
+	// 		? [{ value: "all", label: "All" }]
+	// 		: selectedOptions
+
+	const displayedOptions = selectedOptions.length === dropdownOptions.length ? selectedOptions : selectedOptions;
+
+	// const handleMultiSelectChange = (selected) => {
+	// 	// if (selected && selected.length > 4) {
+	// 	// 	return
+	// 	// }
+	// 	// setSelectedOptions(selected)
+
+
+	// 	if (selected.some((option) => option.value === "all")) {
+	// 		setSelectedOptions(dropdownOptions)
+	// 	} else {
+	// 		// setSelectedOptions(selected)
+	// 		// if (selected && selected.length > 4) {
+	// 		// return
+	// 		// }
+	// 		setSelectedOptions(selected)
+	// 	}
+	// }
 
 	const handleMultiSelectChange = (selected) => {
-		// if (selected && selected.length > 4) {
-		// 	return
-		// }
-		// setSelectedOptions(selected)
+		
+	// Normalize to array
+	const selectedArray = Array.isArray(selected)
+	? selected
+	: selected
+	? [selected]
+	: []
+	// console.log(selected, 'selectedselectedselected', selectedArray, 'outside');
+	setSelectedOptions(selectedArray)
 
-
-		if (selected.some((option) => option.value === "all")) {
-			setSelectedOptions(dropdownOptions)
-		} else {
-			// setSelectedOptions(selected)
-			// if (selected && selected.length > 4) {
-			// return
-			// }
-			setSelectedOptions(selected)
-		}
+	if (selectedArray.length > 1) {
+	// setSelectedOptionsCondition("all")
+	} else if (selectedArray.length === 1) {
+	// setSelectedOptionsCondition("single")
+	} else {
+	// setSelectedOptionsCondition("no-data")
+	}
 	}
 
 	const dropdownCOs = cos?.map((branch) => ({
@@ -1026,8 +1121,8 @@ localStorage.clear()
 
 	useCtrlP(handlePrint)
 
-	console.log("selectedOptions", selectedOptions)
-	console.log("selectedCOs", selectedCOs)
+	// console.log("selectedOptions", selectedOptions)
+	// console.log("selectedCOs", selectedCOs)
 	const populateColumns = (main_dt,headerExport) =>{
 				const columnToBeShown = Object.keys(main_dt[0]).map((key, index) => ({ header:headerExport[key], index }));
 				setColumns(columnToBeShown);
@@ -1078,24 +1173,53 @@ localStorage.clear()
 							/>
 						</div>
 					</div> */}
+
+					<div className="mb-0 flex justify-start gap-5 items-center">
+					<div>
+					<Radiobtn
+					data={brnchwis_divwise}
+					val={searchBrnchDiv}
+					onChangeVal={(value) => {
+					onChange3BrnDiv(value)
+					}}
+					/>
+					</div>
+					{/* {JSON.stringify(branches, 2)} */}
+
+					</div>
+
 					{(userDetails?.id === 3 ||
 						userDetails?.id === 4 ||
 						userDetails?.id === 11) &&
 						userDetails?.brn_code == 100 && (
 							<div className="w-full">
 										<Select
-										options={conditionState === "current" ? [
-										{ value: "all", label: "All" },
-										...dropdownOptions,
-										] : dropdownOptions}
+										// options={conditionState === "current" ? [
+										// { value: "all", label: "All" },
+										// ...dropdownOptions,
+										// ] : dropdownOptions}
+
 										// options={[
 										// { value: "all", label: "All" },
 										// ...dropdownOptions,
 										// ]}
-										isMulti
-										value={displayedOptions}
+										// isMulti
+										// value={displayedOptions}
+										options={[...dropdownOptions]}
+										isMulti={searchBrnchDiv === "B"}
+										value={
+										searchBrnchDiv === "B"
+											? displayedOptions
+											: displayedOptions?.[0] || null
+										}
+
 										onChange={handleMultiSelectChange}
-										placeholder="Select branches..."
+										// placeholder="Select branches..."
+										placeholder={
+										searchBrnchDiv === "B"
+											? "Select branches..."
+											: "Select division..."
+										}
 										className="basic-multi-select"
 										classNamePrefix="select"
 										styles={{
@@ -1350,7 +1474,7 @@ localStorage.clear()
 									 };
 								})}
 								pageSize={50}
-								columnTotal={[32, 37, 38, 39]}
+								columnTotal={[33, 38, 39, 40]}
 								dateTimeExceptionCols={[8, 29, 31]}
 								headersMap={memberwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
@@ -1378,7 +1502,7 @@ localStorage.clear()
 									 };
 								})}
 								pageSize={50}
-								columnTotal={[11, 12, 13, 14]}
+								columnTotal={[12, 13, 14, 15]}
 								headersMap={groupwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
 										if(!selectedColumns.includes(el.index)){
@@ -1395,7 +1519,7 @@ localStorage.clear()
 							<DynamicTailwindTable
 								data={reportData}
 								pageSize={50}
-								columnTotal={[6, 7, 8, 9]}
+								columnTotal={[7, 8, 9, 10]}
 								headersMap={fundwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
 									  if(!selectedColumns.includes(el.index)){
@@ -1412,7 +1536,7 @@ localStorage.clear()
 							<DynamicTailwindTable
 								data={reportData}
 								pageSize={50}
-								columnTotal={[5, 6, 7, 8]}
+								columnTotal={[6, 7, 8, 9]}
 								headersMap={cowiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
 									  if(!selectedColumns.includes(el.index)){
@@ -1430,7 +1554,7 @@ localStorage.clear()
 							<DynamicTailwindTable
 								data={reportData}
 								pageSize={50}
-								columnTotal={[2, 3, 4, 5]}
+								columnTotal={[3, 4, 5, 6]}
 								headersMap={branchwiseOutstandingHeader}
 								colRemove={selectedColumns ? md_columns.map(el => {
 									  if(!selectedColumns.includes(el.index)){
