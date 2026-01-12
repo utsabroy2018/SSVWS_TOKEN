@@ -235,7 +235,10 @@ export default function Dashboard() {
 
 
 	const getBranchCodes = () => {
-		if (+choosenBranch === 100) return branches.map((b) => b.code)
+		// console.log(+choosenBranch, 'gggggggggggggggg' , branches);
+		
+		if (+choosenBranch === 100) 
+			return branches.map((b) => b.code)
 		return [+choosenBranch]
 	}
 	const showModal = () => setIsModalOpen(true);
@@ -677,9 +680,13 @@ localStorage.clear()
 		setLoading(true)
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
-
+		
+		
 		try {
-			const creds = { branch_code: getBranchCodes()[0] }
+			const creds = { branch_code: choosenBranch == '100' ? choosenBranch : getBranchCodes()[0] }
+
+			// console.log(creds, 'gggggggggggggggg');
+
 			const res = await axios.post(`${url}/admin/date_of_operation`, creds, {
 			headers: {
 			Authorization: `${tokenValue?.token}`, // example header

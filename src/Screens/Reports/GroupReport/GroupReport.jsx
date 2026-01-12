@@ -53,6 +53,20 @@ const options_1 = [
 		value: "I",
 	},
 ]
+
+	// Branchwise And Divisionwise options
+	const brnchwis_divwise = [
+	{
+		label: "Branchwise",
+		value: "B",
+	},
+	{
+		label: "Divisionwise",
+		value: "D",
+	},
+]
+
+
 const GroupReport = () => {
     const [searchType, setSearchType] = useState(() => "G");
     const [isActiveOrInActive, setIsActiveOrInActive] = useState(() => "A");
@@ -67,8 +81,21 @@ const GroupReport = () => {
     const [selectedCO, setSelectedCO] = useState("")
     const [selectedCOs, setSelectedCOs] = useState([])
     const navigate = useNavigate()
+
+    // Branchwise And Divisionwise options
+        const [searchBrnchDiv, setSearchBrnchDiv] = useState(() => "B")
             
     
+    // Branchwise And Divisionwise options
+	const onChange3BrnDiv = (e) => {
+	// RESET branch selection
+	setSelectedOptions([])
+	// setSelectedOptionsCondition('no-data')
+
+	setSearchBrnchDiv(e)
+	getBranches(e)
+	}
+
     const dataToExport = reportData
     const onPressOnSearchButton = async () =>{
         
@@ -86,6 +113,7 @@ const GroupReport = () => {
                                 from_date:fromDate,
                                 co_flag:isActiveOrInActive,
                                 branch_code:branchCodes?.length === 0 ? [userDetails?.brn_code] : (dropdownOptions.length === branchCodes.length ? 100 : branchCodes),
+                                // branch_code:branchCodes?.length === 0 ? [0] : (dropdownOptions.length === branchCodes.length ? 100 : branchCodes),
                                 co_id:coCodes?.length === 0
                                     ? selectedCO === "AC"
                                         ? allCos
@@ -99,13 +127,14 @@ const GroupReport = () => {
                                 from_date:fromDate,
                                 [searchType == 'G' ? 'group_flag' : "member_flag"]:isActiveOrInActive,
                                 branch_code:branchCodes?.length === 0 ? [userDetails?.brn_code] : (dropdownOptions.length === branchCodes.length ? 100 : branchCodes),
+                                // branch_code:branchCodes?.length === 0 ? [0] : (dropdownOptions.length === branchCodes.length ? 100 : branchCodes),
                                 to_date: toDate,
                             };
                         }
 
-                        // console.log(payLoad, 'asdasdasdsadasd', fromDate, toDate);
+                        // console.log(payLoad, 'asdasdasdsadasd', userDetails?.brn_code, branchCodes);
                         
-
+                        // return
                         const tokenValue = await getLocalStoreTokenDts(navigate);
 
                         axios.post(`${url}/${apiName}`, payLoad, {
@@ -155,8 +184,21 @@ const GroupReport = () => {
                 }
     }
 
-    const getBranches = async () => {
-		setLoading(true)
+    const getBranches = async (para) => {
+        setBranches([]);
+		setLoading(true);
+
+        // Branchwise And Divisionwise options
+		var apiUrl = ''
+
+		if(para === 'B'){
+			apiUrl = 'fetch_brnname_based_usertype'
+		}
+
+		if(para === 'D'){
+			apiUrl = 'fetch_divitionwise_branch'
+		}
+
 		const creds = {
 			emp_id: userDetails?.emp_id,
 			user_type: userDetails?.id,
@@ -164,7 +206,7 @@ const GroupReport = () => {
 
         const tokenValue = await getLocalStoreTokenDts(navigate);
 
-		axios.post(`${url}/fetch_brnname_based_usertype`, creds, {
+		axios.post(`${url}/${apiUrl}`, para === 'B' ? creds : {}, {
 		headers: {
 		Authorization: `${tokenValue?.token}`, // example header
 		"Content-Type": "application/json", // optional
@@ -188,10 +230,10 @@ const GroupReport = () => {
 		setLoading(false)
 	}
 
-	useEffect(() => {
-        console.log(groupReportGroupWiseHeader);
-		getBranches()
-	}, [])
+	// Branchwise And Divisionwise options
+    useEffect(() => {
+        getBranches(searchBrnchDiv) 
+    }, [])
 
     useEffect(() => {
         setReportData([])
@@ -207,15 +249,49 @@ const GroupReport = () => {
             }
         }, [selectedOptions])
 
-    const dropdownOptions = branches?.map((branch) => ({
-		value: branch.branch_assign_id,
-		label: `${branch.branch_name} - ${branch.branch_assign_id}`,
-	}))
+    // const dropdownOptions = branches?.map((branch) => ({
+	// 	value: branch.branch_assign_id,
+	// 	label: `${branch.branch_name} - ${branch.branch_assign_id}`,
+	// }))
 
-    const displayedOptions =
-		selectedOptions.length === dropdownOptions.length
-			? [{ value: "all", label: "All" }]
-			: selectedOptions
+    // const displayedOptions =
+	// 	selectedOptions.length === dropdownOptions.length
+	// 		? [{ value: "all", label: "All" }]
+	// 		: selectedOptions;
+
+    // Branchwise And Divisionwise options
+	const dropdownOptions = branches?.map((item) => {
+		// console.log(item, 'selectedselectedselected', 'item');
+	if (searchBrnchDiv === "B") {
+		// Branchwise
+		return {
+			value: item.branch_assign_id,
+			label: `${item.branch_name} - ${item.branch_assign_id}`,
+		}
+	}
+
+	if (searchBrnchDiv === "D") {
+		// Divisionwise
+		return {
+			value: item.branch_code,
+			label: `${item.division}`,
+		}
+	}
+
+	return null
+	}).filter(Boolean);
+
+    // Branchwise And Divisionwise options
+    useEffect(() => {
+    setFromDate('')
+    setToDate('')
+
+    setReportData([])
+    setSelectedOptions([])
+    // setSelectedOptionsCondition("no-data")
+    }, [searchBrnchDiv])
+
+    const displayedOptions = selectedOptions.length === dropdownOptions.length ? selectedOptions : selectedOptions;
 
     const getCOs = async () => {
             setLoading(true)
@@ -238,10 +314,10 @@ const GroupReport = () => {
                 })
                 .then((res) => {
                     if(res?.data?.suc === 0){
-// Message('error', res?.data?.msg)
-navigate(routePaths.LANDING)
-localStorage.clear()
-} else {
+                // Message('error', res?.data?.msg)
+                navigate(routePaths.LANDING)
+                localStorage.clear()
+                } else {
                     setCOs(res?.data?.msg)
 }
                 })
@@ -262,6 +338,7 @@ localStorage.clear()
 		value: branch.co_id,
 		label: `${branch.emp_name} - ${branch.co_id}`,
 	}))
+    
 
     const displayedCOs =
 		selectedCOs.length === dropdownCOs.length
@@ -288,16 +365,38 @@ localStorage.clear()
 		searchType
 	)}_${new Date().toLocaleString("en-GB")}.xlsx`
     	
+    // const handleMultiSelectChange = (selected) => {
+	// 	if (selected.some((option) => option.value === "all")) {
+	// 		setSelectedOptions(dropdownOptions)
+	// 	} else {
+	// 		setSelectedOptions(selected)
+	// 	}
+	// }
+
     const handleMultiSelectChange = (selected) => {
-		if (selected.some((option) => option.value === "all")) {
-			setSelectedOptions(dropdownOptions)
-		} else {
-			setSelectedOptions(selected)
-		}
+		
+	// Normalize to array
+	const selectedArray = Array.isArray(selected)
+	? selected
+	: selected
+	? [selected]
+	: []
+	// console.log(selected, 'selectedselectedselected', selectedArray, 'outside');
+	setSelectedOptions(selectedArray)
+
+	if (selectedArray.length > 1) {
+	// setSelectedOptionsCondition("all")
+	} else if (selectedArray.length === 1) {
+	// setSelectedOptionsCondition("single")
+	} else {
+	// setSelectedOptionsCondition("no-data")
+	}
 	}
 
 
     const headersMap = React.useMemo(() => {
+        console.log(searchType, 'searchTypesearchTypesearchType');
+        
     if (searchType === "M") {
         return isActiveOrInActive === "I"
             ? memberwiseReportHeader
@@ -324,6 +423,25 @@ localStorage.clear()
                             Group Report
                         </div>
                     </div>
+
+
+                    {userDetails?.brn_code == 100 && (
+						<div className="mb-0 flex justify-start gap-5 items-center">
+
+						<div>
+							<Radiobtn
+								data={brnchwis_divwise}
+								val={searchBrnchDiv}
+								onChangeVal={(value) => {
+									onChange3BrnDiv(value)
+								}}
+							/>
+						</div>
+						{/* {JSON.stringify(searchBrnchDiv, 2)} */}
+						
+					</div>
+					)}
+
                         <div className="mb-2 grid grid-cols-12 gap-6">
                             <div className='col-span-12 md:col-span-5'>
                                 <Radiobtn className='w-full'
@@ -352,11 +470,23 @@ localStorage.clear()
 						userDetails?.brn_code == 100 && (
 							<div className="col-span-12">
 								<Select
-									options={[{ value: "all", label: "All" }, ...dropdownOptions]}
-									isMulti
-									value={displayedOptions}
+									// options={[{ value: "all", label: "All" }, ...dropdownOptions]}
+									// isMulti
+									// value={displayedOptions}
+                                    options={[...dropdownOptions]}
+									isMulti={searchBrnchDiv === "B"}
+									value={
+									searchBrnchDiv === "B"
+										? displayedOptions
+										: displayedOptions?.[0] || null
+									}
 									onChange={handleMultiSelectChange}
-									placeholder="Select branches..."
+									// placeholder="Select branches..."
+                                    placeholder={
+										searchBrnchDiv === "B"
+										? "Select branches..."
+										: "Select division..."
+									}
 									className="basic-multi-select"
 									classNamePrefix="select"
 									styles={{

@@ -847,7 +847,7 @@ localStorage.clear()
 				<main className="px-4 pb-5 bg-slate-50 rounded-lg shadow-lg h-auto my-10 mx-32">
 					<div className="flex flex-row gap-3 mt-20  py-3 rounded-xl">
 						<div className="text-3xl text-slate-700 font-bold">
-							LOAN TRANSACTIONS 
+							LOAN TRANSACTIONS
 						</div>
 					</div>
 
@@ -861,8 +861,9 @@ localStorage.clear()
 							: userDetails?.branch_name}{" "}
 						from {fromDate} to {toDate}
 					</div>
-
-					<div className="mb-0 flex justify-start gap-5 items-center">
+					
+					{userDetails?.brn_code == 100 && (
+						<div className="mb-0 flex justify-start gap-5 items-center">
 
 						<div>
 							<Radiobtn
@@ -873,9 +874,11 @@ localStorage.clear()
 								}}
 							/>
 						</div>
-						{/* {JSON.stringify(branches, 2)} */}
+						{/* {JSON.stringify(searchBrnchDiv, 2)} */}
 						
 					</div>
+					)}
+					
 
 					<div className="mb-2 flex justify-start gap-5 items-center">
 

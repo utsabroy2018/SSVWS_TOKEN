@@ -988,19 +988,22 @@ Authorization: `${tokenValue?.token}`, // example header
 						from {fromDate}
 					</div>
 
-					<div className="mb-0 flex justify-start gap-5 items-center">
-					<div>
-					<Radiobtn
-					data={brnchwis_divwise}
-					val={searchBrnchDiv}
-					onChangeVal={(value) => {
-					onChange3BrnDiv(value)
-					}}
-					/>
-					</div>
-					{/* {JSON.stringify(branches, 2)} */}
-
-					</div>
+					{userDetails?.brn_code == 100 && (
+											<div className="mb-0 flex justify-start gap-5 items-center">
+					
+											<div>
+												<Radiobtn
+													data={brnchwis_divwise}
+													val={searchBrnchDiv}
+													onChangeVal={(value) => {
+														onChange3BrnDiv(value)
+													}}
+												/>
+											</div>
+											{/* {JSON.stringify(searchBrnchDiv, 2)} */}
+											
+										</div>
+										)}
 
 					<div className="mb-2 flex justify-start gap-5 items-center">
 						<div>

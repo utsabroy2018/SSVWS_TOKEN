@@ -701,10 +701,10 @@ Authorization: `${tokenValue?.token}`, // example header
         label: `${branch.emp_name} - ${branch.co_id}`,
     }))
 
-    const displayedCOs =
-        selectedCOs.length === dropdownCOs.length
-            ? [{ value: "all", label: "All" }]
-            : selectedCOs
+    console.log(selectedCOs.length === dropdownCOs.length, 'selectedCOsselectedCOsselectedCOs');
+    
+    // const displayedCOs = selectedCOs.length === dropdownCOs.length ? [{ value: "all", label: "All" }] : selectedCOs;
+    const displayedCOs = selectedCOs.length === dropdownCOs.length ? [{ value: "all", label: "All" }] : selectedCOs;
 
     const handleMultiSelectChangeCOs = (selected) => {
         if (selected.some((option) => option.value === "all")) {
@@ -756,19 +756,22 @@ Authorization: `${tokenValue?.token}`, // example header
                         from {fromDate} to {toDate}
                     </div>
 
-                    <div className="mb-0 flex justify-start gap-5 items-center">
-                    <div>
-                    <Radiobtn
-                    data={brnchwis_divwise}
-                    val={searchBrnchDiv}
-                    onChangeVal={(value) => {
-                    onChange3BrnDiv(value)
-                    }}
-                    />
-                    </div>
-                    {/* {JSON.stringify(branches, 2)} */}
+                    {userDetails?.brn_code == 100 && (
+						<div className="mb-0 flex justify-start gap-5 items-center">
 
-                    </div>
+						<div>
+							<Radiobtn
+								data={brnchwis_divwise}
+								val={searchBrnchDiv}
+								onChangeVal={(value) => {
+									onChange3BrnDiv(value)
+								}}
+							/>
+						</div>
+						{/* {JSON.stringify(searchBrnchDiv, 2)} */}
+						
+					</div>
+					)}
 
                     <div className="mb-2 flex justify-start gap-5 items-center">
                         <div>
@@ -879,10 +882,11 @@ Authorization: `${tokenValue?.token}`, // example header
                         // 	/>
                         // </div>
                         <div className="col-span-3 mx-auto w-[100%] pt-5">
+                            {/* {JSON.stringify(dropdownCOs, 2)} */}
                             <Select
                                 options={[{ value: "all", label: "All" }, ...dropdownCOs]}
                                 isMulti
-                                value={displayedCOs}
+                                value={dropdownCOs?.length > 0 ? displayedCOs : [] }
                                 onChange={handleMultiSelectChangeCOs}
                                 placeholder="Select COs'..."
                                 className="basic-multi-select"

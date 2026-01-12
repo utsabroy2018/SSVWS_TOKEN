@@ -47,6 +47,18 @@ const options = [
 	},
 ]
 
+	// Branchwise And Divisionwise options
+	const brnchwis_divwise = [
+	{
+		label: "Branchwise",
+		value: "B",
+	},
+	{
+		label: "Divisionwise",
+		value: "D",
+	},
+]
+
 function LoanStatementMain() {
 	const [selectedColumns, setSelectedColumns] = useState(null);
 	const [md_columns, setColumns] = useState([]);
@@ -66,63 +78,160 @@ function LoanStatementMain() {
 
 	const [metadataDtls, setMetadataDtls] = useState(() => null)
 	const [branches, setBranches] = useState(() => [])
+	const [branchesDiv, setBranchesDiv] = useState(() => [])
 	const [branch, setBranch] = useState(() =>
 		+userDetails?.brn_code !== 100
 			? `${userDetails?.brn_code},${userDetails?.branch_name}`
 			: ""
 	)
 
+	// Branchwise And Divisionwise options
+	const [searchBrnchDiv, setSearchBrnchDiv] = useState(() => "B")
+
 	const onChange = (e) => {
 		console.log("radio1 checked", e)
 		setSearchType(e)
 	}
 
-	const navigate = useNavigate()
+	    // Branchwise And Divisionwise options
+	const onChange3BrnDiv = (e) => {
+	// RESET branch selection
+	// setSelectedOptions([])
+	// setSelectedOptionsCondition('no-data')
 
-	const handleFetchBranches = async () => {
-		setLoading(true)
-		const tokenValue = await getLocalStoreTokenDts(navigate);
-
-		await axios
-			.get(`${url}/fetch_all_branch_dt`, {
-		headers: {
-		Authorization: `${tokenValue?.token}`, // example header
-		"Content-Type": "application/json", // optional
-		},
-		})
-			.then((res) => {
-
-			if(res?.data?.suc === 0){
-
-			navigate(routePaths.LANDING)
-			localStorage.clear()
-			Message('error', res?.data?.msg)
-
-			} else {
-			console.log("QQQQQQQQQQQQQQQQ", res?.data)
-			setBranches(res?.data?.msg)
-			}
-			})
-			.catch((err) => {
-				console.log("?????????????????????", err)
-			})
-
-		setLoading(false)
+	setSearchBrnchDiv(e)
+	handleFetchBranches(e)
 	}
 
+	const navigate = useNavigate()
+
+	// const handleFetchBranches = async (para) => {
+	// 	setBranches([]);
+	// 	setLoading(true);
+
+	// 	// Branchwise And Divisionwise options
+	// 	var apiUrl = ''
+
+	// 	if(para === 'B'){
+	// 		apiUrl = 'fetch_all_branch_dt'
+	// 	}
+
+	// 	if(para === 'D'){
+	// 		apiUrl = 'fetch_divitionwise_branch'
+	// 	}
+
+	// 	const tokenValue = await getLocalStoreTokenDts(navigate);
+
+	// 	await axios.get(`${url}/${apiUrl}`, {
+	// 	headers: {
+	// 	Authorization: `${tokenValue?.token}`, // example header
+	// 	"Content-Type": "application/json", // optional
+	// 	},
+	// 	})
+	// 		.then((res) => {
+
+	// 		if(res?.data?.suc === 0){
+
+	// 		navigate(routePaths.LANDING)
+	// 		localStorage.clear()
+	// 		Message('error', res?.data?.msg)
+
+	// 		} else {
+	// 		console.log("QQQQQQQQQQQQQQQQ", res?.data)
+	// 		setBranches(res?.data?.msg)
+	// 		}
+	// 		})
+	// 		.catch((err) => {
+	// 			console.log("?????????????????????", err)
+	// 		})
+
+	// 	setLoading(false)
+	// }
+
+	const handleFetchBranches = async (para) => {
+	try {
+		setBranches([])
+		setLoading(true)
+
+		let apiUrl = ""
+
+		if (para === "B") {
+			apiUrl = "fetch_all_branch_dt"
+		} else if (para === "D") {
+			apiUrl = "fetch_divitionwise_branch"
+		}
+
+		const tokenValue = await getLocalStoreTokenDts(navigate)
+
+		let response
+
+		if (para === "B") {
+			// ✅ GET API
+			response = await axios.get(`${url}/${apiUrl}`, {
+				headers: {
+					Authorization: `${tokenValue?.token}`,
+					"Content-Type": "application/json",
+				},
+			})
+		} else {
+			// ✅ POST API
+			response = await axios.post(
+				`${url}/${apiUrl}`,
+				{}, // empty body
+				{
+					headers: {
+						Authorization: `${tokenValue?.token}`,
+						"Content-Type": "application/json",
+					},
+				}
+			)
+		}
+
+		if (response?.data?.suc === 0) {
+			Message("error", response?.data?.msg)
+			localStorage.clear()
+			navigate(routePaths.LANDING)
+			return
+		}
+
+		console.log("BRANCH RESPONSE 👉", response?.data)
+		setBranches(response?.data?.msg || [])
+
+	} catch (err) {
+		console.error("FETCH BRANCH ERROR ❌", err)
+		Message("error", "Something went wrong while fetching branches")
+	} finally {
+		setLoading(false)
+	}
+}
+
+
 	useEffect(() => {
-		handleFetchBranches()
+		handleFetchBranches(searchBrnchDiv)
 	}, [])
 
 	const handleFetchReportMemberwise = async () => {
 		setLoading(true)
-		const creds = {
+
+		var creds;
+
+		if (searchBrnchDiv === "B") {
+			creds = {
 			memb: search,
 			branch_code:
 				+userDetails?.brn_code === 100
 					? branch.split(",")[0]
 					: userDetails?.brn_code,
 		}
+		}
+
+		if (searchBrnchDiv === "D") {
+			creds = {
+			memb: search,
+			branch_code: [branchesDiv],
+		}
+		}
+		
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -153,13 +262,33 @@ function LoanStatementMain() {
 
 	const handleFetchReportGroupwise = async () => {
 		setLoading(true)
-		const creds = {
+
+		var creds;
+
+		if (searchBrnchDiv === "B") {
+			creds = {
 			grp: search,
 			branch_code:
 				+userDetails?.brn_code === 100
 					? branch.split(",")[0]
 					: userDetails?.brn_code,
 		}
+		}
+
+		if (searchBrnchDiv === "D") {
+			creds = {
+			grp: search,
+			branch_code: [branchesDiv],
+		}
+		}
+
+		// const creds = {
+		// 	grp: search,
+		// 	branch_code:
+		// 		+userDetails?.brn_code === 100
+		// 			? branch.split(",")[0]
+		// 			: userDetails?.brn_code,
+		// }
 
 		const tokenValue = await getLocalStoreTokenDts(navigate);
 
@@ -278,6 +407,8 @@ function LoanStatementMain() {
 	// }
 	// }, [searchType, search])
 
+	
+
 	const searchData = () => {
 		if (searchType === "M" && search.length > 2) {
 			handleFetchReportMemberwise()
@@ -326,6 +457,50 @@ function LoanStatementMain() {
 		searchType
 	)}_${new Date().toLocaleString("en-GB")}.xlsx`
 
+
+	const branchOptions = React.useMemo(() => {
+	if (searchBrnchDiv === "B") {
+		// Branch-wise (already flat)
+		return branches.map(item => ({
+			code: item.branch_code,
+			name: item.branch_name,
+		}));
+	}
+
+	if (searchBrnchDiv === "D") {
+		// Division-wise → convert to dropdown format
+		return branches.map(item => ({
+			code: item.division,
+			name: item.division,
+		}));
+	}
+
+	return [];
+}, [branches, searchBrnchDiv]);
+
+
+	const handleBranchChange = (e) => {
+
+		
+		
+	const value = e.target.value;
+
+	
+	const branchCodes = branches.find(item => item.division === value)?.branch_code || [];
+	setBranchesDiv(branchCodes)
+	// console.log(branchCodes, 'ddddddddddddddddd', branches);
+
+	if (searchBrnchDiv === "B") {
+		const selected = branches.find(b => b.branch_code == value);
+		setBranch(`${selected.branch_code},${selected.branch_name}`);
+	}
+
+	if (searchBrnchDiv === "D") {
+		setBranch(value); // DIV-1, DIV-2, etc.
+	}
+};
+
+
 	return (
 		<div>
 			<Sidebar mode={2} />
@@ -338,9 +513,27 @@ function LoanStatementMain() {
 				<main className="px-4 pb-5 bg-slate-50 rounded-lg shadow-lg h-auto my-10 mx-32">
 					<div className="flex flex-row gap-3 mt-20  py-3 rounded-xl">
 						<div className="text-3xl text-slate-700 font-bold">
-							LOAN STATEMENTS
+							LOAN STATEMENTS 
 						</div>
 					</div>
+
+
+					{userDetails?.brn_code == 100 && (
+						<div className="mb-0 flex justify-start gap-5 items-center">
+
+						<div>
+							<Radiobtn
+								data={brnchwis_divwise}
+								val={searchBrnchDiv}
+								onChangeVal={(value) => {
+									onChange3BrnDiv(value)
+								}}
+							/>
+						</div>
+						{/* {JSON.stringify(searchBrnchDiv, 2)} */}
+						
+					</div>
+					)}
 
 					<div className="mb-2">
 						<Radiobtn
@@ -354,7 +547,24 @@ function LoanStatementMain() {
 
 					{+userDetails?.brn_code === 100 && (
 						<div>
+
 							<TDInputTemplateBr
+								// placeholder="Branch..."
+								placeholder={
+										searchBrnchDiv === "B"
+										? "Select branches..."
+										: "Select division..."
+									}
+								type="text"
+								label="Branch"
+								name="branch"
+								formControlName={branch?.split(",")[0]}
+								handleChange={handleBranchChange}
+								mode={2}
+								data={branchOptions}
+							/>
+
+							{/* <TDInputTemplateBr
 								placeholder="Branch..."
 								type="text"
 								label="Branch"
@@ -390,7 +600,7 @@ function LoanStatementMain() {
 										name: item?.branch_name,
 									})),
 								]}
-							/>
+							/> */}
 						</div>
 					)}
 
@@ -492,10 +702,13 @@ function LoanStatementMain() {
 												Member Name
 											</th>
 											<th scope="col" className="px-6 py-3 font-semibold ">
+												Division Name
+											</th>
+											<th scope="col" className="px-6 py-3 font-semibold ">
 												Loan ID
 											</th>
 											<th scope="col" className="px-6 py-3 font-semibold ">
-												Action
+												Action 
 											</th>
 										</tr>
 									</thead>
@@ -510,7 +723,9 @@ function LoanStatementMain() {
 												>
 													<td className="px-6 py-3">{item?.member_code}</td>
 													<td className="px-6 py-3">{item?.client_name}</td>
+													<td className="px-6 py-3">{item?.area_code}</td>
 													<td className="px-6 py-3">{item?.loan_id}</td>
+													
 													<td className="px-6 py-3">
 														<button
 															onClick={async () => {
@@ -565,6 +780,9 @@ function LoanStatementMain() {
 												Group Name
 											</th>
 											<th scope="col" className="px-6 py-3 font-semibold ">
+												Division Name
+											</th>
+											<th scope="col" className="px-6 py-3 font-semibold ">
 												Outstanding
 											</th>
 											<th scope="col" className="px-6 py-3 font-semibold ">
@@ -587,6 +805,7 @@ function LoanStatementMain() {
 													<td className="px-6 py-3">{item?.branch_code}</td>
 													<td className="px-6 py-3">{item?.group_code}</td>
 													<td className="px-6 py-3">{item?.group_name}</td>
+													<td className="px-6 py-3">{item?.area_code}</td>
 													<td className="px-6 py-3">{item?.outstanding}</td>
 													<td className="px-6 py-3">{item?.branch_name}</td>
 													<td className="px-6 py-3">
